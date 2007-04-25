@@ -1,0 +1,9 @@
+dipoles 1
+2 0 0 .002 .0002 1 0
+
+scaling 3 0.9 1.1
+
+linear gain
+file amplit inimp power direct
+screen amplit inimp power direct
+window distrib direct
