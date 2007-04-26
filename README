@@ -3,4 +3,4 @@ change to src/ subdirectory and type
  gmake
 
 RUN
- yagi-logper ../input/D1
+ yagi-logper ../input/D12K6
