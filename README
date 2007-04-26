@@ -1,0 +1,6 @@
+COMPILATION
+change to src/ subdirectory and type
+ gmake
+
+RUN
+ yagi-logper ../input/D1
