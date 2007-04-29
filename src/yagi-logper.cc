@@ -96,7 +96,7 @@ bool initgr() {
     // Create the window
     //
     w = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy), 0, 0, 
-			    getmaxx, getmaxy, 0, blackColor, whiteColor);
+                            getmaxx, getmaxy, 0, blackColor, whiteColor);
 
     // Create a "Graphics Context"
     //
@@ -231,9 +231,9 @@ void input(const int argc, char* argv[] ) {
     else {
       istrm >> nsub >> ngaux >> ngaufi;
       if (istrm.fail()) {
-	cout << "Error: input: ndip should be followed by nsub,ngaux,ngaufi";
-	cout << endl;
-	exit(1);
+        cout << "Error: input: ndip should be followed by nsub,ngaux,ngaufi";
+        cout << endl;
+        exit(1);
       }
     }
 
@@ -306,10 +306,10 @@ void input(const int argc, char* argv[] ) {
 
       istrm >> numfreq >> freqd >> freqh;
       if (istrm.fail()) {
-	cout << "Error: input: could not read scaling numfreq,freqd,freqh from"
-	     << endl;
-	cout << " from this string: \"" << str << "\"" << endl;
-	exit(1);
+        cout << "Error: input: could not read scaling numfreq,freqd,freqh from"
+             << endl;
+        cout << " from this string: \"" << str << "\"" << endl;
+        exit(1);
       }
       cout << "Scaling numfreq: " << numfreq;
       cout << " low: " << freqd << " hi: " << freqh << endl;
@@ -327,38 +327,38 @@ void input(const int argc, char* argv[] ) {
     }
     else if (str.find("file", 0) != string::npos) {
       if (str.find("amplit") != string::npos) {
-	f_amplit = true;
+        f_amplit = true;
       }
       if (str.find("inimp") != string::npos) {
-	f_inimp = true;
+        f_inimp = true;
       }
       if (str.find("power") != string::npos) {
-	f_power = true;
+        f_power = true;
       }
       if (str.find("direct") != string::npos) {
-	f_direct = true;
+        f_direct = true;
       }
     }
     else if (str.find("screen", 0) != string::npos) {
       if (str.find("amplit") != string::npos) {
-	s_amplit = true;
+        s_amplit = true;
       }
       if (str.find("inimp") != string::npos) {
-	s_inimp = true;
+        s_inimp = true;
       }
       if (str.find("power") != string::npos) {
-	s_power = true;
+        s_power = true;
       }
       if (str.find("direct") != string::npos) {
-	s_direct = true;
+        s_direct = true;
       }
     }
     else if (str.find("window", 0) != string::npos) {
       if (str.find("distrib") != string::npos) {
-	w_distrib = true;
+        w_distrib = true;
       }
       if (str.find("direct") != string::npos) {
-	w_direct = true;
+        w_direct = true;
       }
     }
     else {
@@ -370,7 +370,7 @@ void input(const int argc, char* argv[] ) {
   }
 
   inFile.close();
-	
+
 } /* input */
 
 
@@ -712,9 +712,9 @@ void edif4(int m) {
   x3 = fi*r3;
   x4 = fi*r4;
   res.real() = sin(fi*(1-x))*(cos(x1)/r1+cos(x2)/r2
-			      +cos(x3)/r3+cos(x4)/r4);
+                              +cos(x3)/r3+cos(x4)/r4);
   res.imag() = -sin(fi*(1-x))*(sin(x1)/r1+sin(x2)/r2
-			       +sin(x3)/r3+sin(x4)/r4);
+                               +sin(x3)/r3+sin(x4)/r4);
 } /* edif4 */
 
 void difdip(uint kk, uint ll) {
@@ -743,19 +743,19 @@ void difdip(uint kk, uint ll) {
     for (uint i = 0; i < ns2; ++i) {        /* m = relatively to*/
       del = i*dkl;
       for (uint j = 0; j < ns1; ++j) {      /* i = from pair*/
-	q = j;
-	x0 = q-del;
-	x01 = q+del;
-	/* dqg(edif4,c); */
-	c.real() = 0;
-	c.imag() = 0;
-	for (uint m = 0; m < ngau1; ++m) {
-	  edif4(m);
-	  c.real() = c.real()+wgauss[0][m]*res.real();
-	  c.imag() = c.imag()+wgauss[0][m]*res.imag();
-	}
-	pw[i][j].real() = c.real()/sfi;
-	pw[i][j].imag() = c.imag()/sfi;
+        q = j;
+        x0 = q-del;
+        x01 = q+del;
+        /* dqg(edif4,c); */
+        c.real() = 0;
+        c.imag() = 0;
+        for (uint m = 0; m < ngau1; ++m) {
+          edif4(m);
+          c.real() = c.real()+wgauss[0][m]*res.real();
+          c.imag() = c.imag()+wgauss[0][m]*res.imag();
+        }
+        pw[i][j].real() = c.real()/sfi;
+        pw[i][j].imag() = c.imag()/sfi;
       }
     }
 
@@ -775,9 +775,9 @@ void difdip(uint kk, uint ll) {
       iip = ii+1;
       iim = ii-1;
       for (uint jj = 0; jj < ns1; ++jj) {
-	j = j0+jj;
-	pfc[i][j].real() = pw[iip][jj].real()+pw[iim][jj].real()-t*pw[ii][jj].real();
-	pfc[i][j].imag() = pw[iip][jj].imag()+pw[iim][jj].imag()-t*pw[ii][jj].imag();
+        j = j0+jj;
+        pfc[i][j].real() = pw[iip][jj].real()+pw[iim][jj].real()-t*pw[ii][jj].real();
+        pfc[i][j].imag() = pw[iip][jj].imag()+pw[iim][jj].imag()-t*pw[ii][jj].imag();
       }
     }
 
@@ -787,22 +787,22 @@ void difdip(uint kk, uint ll) {
     }
     else {
       if (dkl == 1) {
-	goto kon;
+        goto kon;
       }
       else {
-	k = ll;
-	l = kk;
-	goto zac;
+        k = ll;
+        l = kk;
+        goto zac;
       };
     kon: /* sym */
       for (uint ii = 0; ii < ns1; ++ii) {
-	i = i0+ii;
-	is = j0+ii;
-	for (uint jj = 0; jj < ns1; ++jj) {
-	  j = j0+jj;
-	  js = i0+jj;
-	  pfc[is][js] = pfc[i][j];
-	}
+        i = i0+ii;
+        is = j0+ii;
+        for (uint jj = 0; jj < ns1; ++jj) {
+          j = j0+jj;
+          js = i0+jj;
+          pfc[is][js] = pfc[i][j];
+        }
       }
     }
   }
@@ -830,9 +830,9 @@ void plasyd() { /* calculates impedance matrix */
     uint i = 0;
     while (i<k) {
       if ((dxk[k] == dxk[i]) && (ar[i] == ar[k])) {
-	km = i;
-	copydip(k,ns1,km);
-	i = k;
+        km = i;
+        copydip(k,ns1,km);
+        i = k;
       };
       ++i;
     }
@@ -848,7 +848,7 @@ void plasyd() { /* calculates impedance matrix */
     dqgini(ngau,ngau1,ngau2);
     for (uint kk = 1; kk < ndip; ++kk) {
       for (uint ll = 0; ll < kk; ++ll) {
-	difdip(kk,ll);
+        difdip(kk,ll);
       }
     }
   }
@@ -890,7 +890,7 @@ void cgapex() {
       c.imag() = -v[k].real()/gk/30;
       g0k = gk;
       if (fik<gk) {
-	g0k = fik;
+        g0k = fik;
       }
       kr = k*ns1;
       right_first[kr].real() = 2*c.real()*sin(g0k/2)*sin(fik-g0k/2);
@@ -900,33 +900,33 @@ void cgapex() {
       x2mg = x1mg+fik;
       x3mg = x2mg+fik;
       while (m < nsub) {
-	kr = kr+1;
-	if (x3mg <= 0 ) {
-	  right_first[kr].real() = right_first[kr-1].real();
-	  right_first[kr].imag() = right_first[kr-1].imag();
-	  shift();
-	}
-	else {
-	  if (x2mg <= 0) {
-	    right_first[kr].real() = right_first[kr-1].real()/2+
-	      c.real()*sin(-x2mg/2)*sin((x3mg+fik)/2);
-	    right_first[kr].imag() = right_first[kr-1].imag()/2+
-	      c.imag()*sin(-x2mg/2)*sin((x3mg+fik)/2);
-	    shift();
-	  }
-	  else {
-	    if (x1mg < 0) {
-	      right_first[kr].real() = c.real()*sin(-x1mg/2)*
-		sin(-x1mg/2);
-	      right_first[kr].imag() = c.imag()*sin(-x1mg/2)*
-		sin(-x1mg/2);
-	      shift();
-	    }
-	    else {
-	      m = nsub+1;
-	    }
-	  }
-	}
+        kr = kr+1;
+        if (x3mg <= 0 ) {
+          right_first[kr].real() = right_first[kr-1].real();
+          right_first[kr].imag() = right_first[kr-1].imag();
+          shift();
+        }
+        else {
+          if (x2mg <= 0) {
+            right_first[kr].real() = right_first[kr-1].real()/2+
+              c.real()*sin(-x2mg/2)*sin((x3mg+fik)/2);
+            right_first[kr].imag() = right_first[kr-1].imag()/2+
+              c.imag()*sin(-x2mg/2)*sin((x3mg+fik)/2);
+            shift();
+          }
+          else {
+            if (x1mg < 0) {
+              right_first[kr].real() = c.real()*sin(-x1mg/2)*
+                sin(-x1mg/2);
+              right_first[kr].imag() = c.imag()*sin(-x1mg/2)*
+                sin(-x1mg/2);
+              shift();
+            }
+            else {
+              m = nsub+1;
+            }
+          }
+        }
       }
     }
     k = k + 1;
@@ -949,32 +949,32 @@ void cgauss() {
     c.real() = (right_first[jz].real()*pfc[jz][jz].real()
                 +right_first[jz].imag()*pfc[jz][jz].imag())/h;
     c.imag() = (right_first[jz].imag()*pfc[jz][jz].real()-
-		right_first[jz].real()*pfc[jz][jz].imag())/h;
+                right_first[jz].real()*pfc[jz][jz].imag())/h;
     right_first[jz] = c;
     for (uint jh = ndns1; jh > jz; --jh) {
       c.real() = (pfc[jz][jh-1].real()*pfc[jz][jz].real()
-		  +pfc[jz][jh-1].imag()*pfc[jz][jz].imag())/h;
+                  +pfc[jz][jh-1].imag()*pfc[jz][jz].imag())/h;
       c.imag() = (pfc[jz][jh-1].imag()*pfc[jz][jz].real()-
-		  pfc[jz][jh-1].real()*pfc[jz][jz].imag())/h;
+                  pfc[jz][jh-1].real()*pfc[jz][jz].imag())/h;
       pfc[jz][jh-1] = c;
     }
     for (uint iz = jz+1; iz < ndns1; ++iz) {
       /* right_first[iz] = right_first[iz]-right_first[jz]*pfc[iz][jz]; */
       right_first[iz].real() = right_first[iz].real()-right_first[jz].real()*pfc[iz][jz].real()
-	+right_first[jz].imag()*pfc[iz][jz].imag();
+        +right_first[jz].imag()*pfc[iz][jz].imag();
       right_first[iz].imag() = right_first[iz].imag()-right_first[jz].real()*pfc[iz][jz].imag()
-	-right_first[jz].imag()*pfc[iz][jz].real();
+        -right_first[jz].imag()*pfc[iz][jz].real();
       for (uint jh = ndns1-1; jh > jz; --jh) {
-	pfc[iz][jh].real() = pfc[iz][jh].real()-pfc[jz][jh].real()*pfc[iz][jz].real()
-	  +pfc[jz][jh].imag()*pfc[iz][jz].imag();
-	pfc[iz][jh].imag() = pfc[iz][jh].imag()-pfc[jz][jh].real()*pfc[iz][jz].imag()
-	  -pfc[jz][jh].imag()*pfc[iz][jz].real();
+        pfc[iz][jh].real() = pfc[iz][jh].real()-pfc[jz][jh].real()*pfc[iz][jz].real()
+          +pfc[jz][jh].imag()*pfc[iz][jz].imag();
+        pfc[iz][jh].imag() = pfc[iz][jh].imag()-pfc[jz][jh].real()*pfc[iz][jz].imag()
+          -pfc[jz][jh].imag()*pfc[iz][jz].real();
       };
       uint jh = jz;
       c.real() = -pfc[jz][jh].real()*pfc[iz][jz].real()
-	+pfc[jz][jh].imag()*pfc[iz][jz].imag();
+        +pfc[jz][jh].imag()*pfc[iz][jz].imag();
       c.imag() = -pfc[jz][jh].real()*pfc[iz][jz].imag()
-	-pfc[jz][jh].imag()*pfc[iz][jz].real();
+        -pfc[jz][jh].imag()*pfc[iz][jz].real();
       pfc[iz][jh].real() = pfc[iz][jh].real()+c.real();
       pfc[iz][jh].imag() = pfc[iz][jh].imag()+c.imag();
     };
@@ -987,9 +987,9 @@ void cgauss() {
     for (uint jh = ndns1-1; jh >= jz; --jh) {
       /* c = c-right_first[jh]*pfc[jz][jh]; */
       c.real() = c.real()-right_first[jh].real()*pfc[jz-1][jh].real()
-	+right_first[jh].imag()*pfc[jz-1][jh].imag();
+        +right_first[jh].imag()*pfc[jz-1][jh].imag();
       c.imag() = c.imag()-right_first[jh].real()*pfc[jz-1][jh].imag()
-	-right_first[jh].imag()*pfc[jz-1][jh].real();
+        -right_first[jh].imag()*pfc[jz-1][jh].real();
     };
     right_first[jz-1] = c;
     c.real() = 0;
@@ -1016,7 +1016,7 @@ void camplit() { /* calculates amplitudes and phases of currents */
     }
     else {
       if (right_first[i].imag() < 0) {
-	args[i] = 360+args[i];
+        args[i] = 360+args[i];
       }
     }
 
@@ -1032,7 +1032,7 @@ void camplit() { /* calculates amplitudes and phases of currents */
       cout << "Ampl." << i << ".: " << setprecision(15) << setw(22) << amplit[i];
       cout << "  Ph.: " << setw(22) << args[i];
       if ((i) % (nsub+1) == 0) {
-	cout << " central";
+        cout << " central";
       }
       cout << endl;
     }
@@ -1160,7 +1160,7 @@ procedure graphdistrib;
               };
           CloseGraph;
         }
-	};*/ /*graphdistrib*/
+};*/ /*graphdistrib*/
 
 /*****************************************************************************/
 void inimp() {
@@ -1171,9 +1171,9 @@ void inimp() {
     pom = right_first[iz].real()*right_first[iz].real()
       +right_first[iz].imag()*right_first[iz].imag();
     inimped.real() = (v[lexc].real()*right_first[iz].real()
-		      +v[lexc].imag()*right_first[iz].imag())/pom/2;
+                      +v[lexc].imag()*right_first[iz].imag())/pom/2;
     inimped.imag() = (v[lexc].imag()*right_first[iz].real()
-		      -v[lexc].real()*right_first[iz].imag())/pom/2;
+                      -v[lexc].real()*right_first[iz].imag())/pom/2;
     if (s_inimp) {
       cout << endl;
       cout << "Input impedance (re): " << inimped.real() << endl;
@@ -1200,7 +1200,7 @@ void pabs() { /* powers */
     for (uint m = 0; m < nsub; ++m) {
       kr = kr+1;
       cim = cim-right_first[kr].imag()*rightz[kr].real()
-	+right_first[kr].real()*rightz[kr].imag();
+        +right_first[kr].real()*rightz[kr].imag();
     };
     w[k] = -30*cim/sin(dxk[k]);
     if (s_power) {
@@ -1215,7 +1215,7 @@ void pabs() { /* powers */
 
 /*****************************************************************************/
 void polar(my_float fi, float* hodndir,
-	   uint xs, uint ys, uint r, my_float dmax) {
+           uint xs, uint ys, uint r, my_float dmax) {
 
   const int NKRU = 5;
   int dbkru[NKRU] = { 3, 10, 20, 30, 40};
@@ -1262,19 +1262,19 @@ void polar(my_float fi, float* hodndir,
       rca = r*cos(alfar);
       rsa = r*sin(alfar);
       if ((alfa % 30 == 0) && (c == 0)) {
-	for(j = 0; j < 30; ++j) {
-	  rmm = exp(-koef*j);
-	  x = static_cast<int>(round(rmm*rca));
-	  y = static_cast<int>(round(rmm*rsa));
-	  putpixel(xs+x,ys+y,white);
-	  putpixel(xs+x,ys-y,white);
-	  putpixel(xs-x,ys+y,white);
-	  putpixel(xs-x,ys-y,white);
-	  putpixel(xs+y,ys+x,white);
-	  putpixel(xs+y,ys-x,white);
-	  putpixel(xs-y,ys+x,white);
-	  putpixel(xs-y,ys-x,white);
-	}
+        for(j = 0; j < 30; ++j) {
+          rmm = exp(-koef*j);
+          x = static_cast<int>(round(rmm*rca));
+          y = static_cast<int>(round(rmm*rsa));
+          putpixel(xs+x,ys+y,white);
+          putpixel(xs+x,ys-y,white);
+          putpixel(xs-x,ys+y,white);
+          putpixel(xs-x,ys-y,white);
+          putpixel(xs+y,ys+x,white);
+          putpixel(xs+y,ys-x,white);
+          putpixel(xs-y,ys+x,white);
+          putpixel(xs-y,ys-x,white);
+        }
       }
       x = static_cast<int>(round(rm*rca));
       y = static_cast<int>(round(rm*rsa));
@@ -1300,14 +1300,14 @@ void polar(my_float fi, float* hodndir,
     //      setcolor(yellow);
     if (not scaling) {
       circle(xs+static_cast<int>(round(r*rm*cos(alfar))),
-	     ys+static_cast<int>(round(r*rm*sin(alfar))),
-	     1);
+             ys+static_cast<int>(round(r*rm*sin(alfar))),
+             1);
     }
     else {
       // yellow
       putpixel(xs+static_cast<int>(round(r*rm*cos(alfar))),
-	       ys+static_cast<int>(round(r*rm*sin(alfar))),0);
-      //	setcolor(white);
+               ys+static_cast<int>(round(r*rm*sin(alfar))),0);
+      // setcolor(white);
     }
   }
 } /*polar*/
@@ -1399,58 +1399,58 @@ void get_clock(char* argv[], int freq_cnt) {
       clocks_array[pom][freq_cnt][i] = d;
 
       if (d>dmax) {
-	dmax = d;
-	thetamax = theta;
+        dmax = d;
+        thetamax = theta;
       };
 
     }
 
     if (scaling) {
       if (thetamax == 360.0) {
-	thetamax = 0;
+        thetamax = 0;
       }
       pthetamax[pom][freq_cnt] = thetamax;
       pdmax[pom][freq_cnt] = dmax;
     }
     else {
       if (! scaling) {
-	if (initgr()) {
+        if (initgr()) {
 
-	  // Wait for the MapNotify event
-	  //
-	  for(;;) {
-	    XEvent e;
-	    XNextEvent(dpy, &e);
-	    //cout << "got next event, looking for Expose: " << Expose << endl;
-	    //cout << e.type << endl;
-	    if ((e.type == Expose) && e.xexpose.count == 0) {
-	      //	      cout << getmaxx / 4;
-	      polar(fi,clocks_array[pom][0],
-		    getmaxx / 2,
-		    getmaxy / 2,
-		    static_cast<int>(round(getmaxy/2.)),
-		    dmax);
-	      //	      cout << "here" << endl;
-	      //XDrawLine(dpy, w, gc, 10, 60, 180, 20);
-	      //XDrawArc(dpy, w, gc, 5, 55, 10, 10, 0, 48*360);
-	      //XDrawString(dpy, w, gc, 2, 20, "Hello World!", 12);
-	      //XFlush(dpy);
-	    }
-	    else if(e.type==ButtonPress) {
-	      //cout << "Buttonpress found" << endl;
-	      break;
-	    }
-	    else if (e.type==KeyPress) {
-	      //cout << "keyPress found" << endl;
-	      //cout << e.xkey.state << endl;
-	      //	      cout << XKeycodeToKeysym(dpy,e.xkey.keycode,0) << endl;
-	      if (XLookupKeysym(&e.xkey, 0) != XK_Alt_L) {
-		break;
-	      }
-	    }
-	  }
-	}
-	closegraph();
+          // Wait for the MapNotify event
+          //
+          for(;;) {
+            XEvent e;
+            XNextEvent(dpy, &e);
+            //cout << "got next event, looking for Expose: " << Expose << endl;
+            //cout << e.type << endl;
+            if ((e.type == Expose) && e.xexpose.count == 0) {
+              //cout << getmaxx / 4;
+              polar(fi,clocks_array[pom][0],
+                    getmaxx / 2,
+                    getmaxy / 2,
+                    static_cast<int>(round(getmaxy/2.)),
+                    dmax);
+              //      cout << "here" << endl;
+              //XDrawLine(dpy, w, gc, 10, 60, 180, 20);
+              //XDrawArc(dpy, w, gc, 5, 55, 10, 10, 0, 48*360);
+              //XDrawString(dpy, w, gc, 2, 20, "Hello World!", 12);
+              //XFlush(dpy);
+            }
+            else if(e.type==ButtonPress) {
+              //cout << "Buttonpress found" << endl;
+              break;
+            }
+            else if (e.type==KeyPress) {
+              //cout << "keyPress found" << endl;
+              //cout << e.xkey.state << endl;
+              //cout << XKeycodeToKeysym(dpy,e.xkey.keycode,0) << endl;
+              if (XLookupKeysym(&e.xkey, 0) != XK_Alt_L) {
+                break;
+              }
+            }
+          }
+        }
+        closegraph();
       }
     }
     fi = 90;
@@ -1462,41 +1462,41 @@ void get_clock(char* argv[], int freq_cnt) {
 
       string ofn(argv[1]);
       if (linear_gain) {
-	ofn += ".dirlin.";
+        ofn += ".dirlin.";
       }
       else {
-	ofn += ".dirlog.";
+        ofn += ".dirlog.";
       }
 
       if (pom == 0) {
-	ofn += "E";
+        ofn += "E";
       }
       else {
-	ofn += "H";
+        ofn += "H";
       }
 
       if (scaling) {
-	ofn += ".";
-	ofn += int2string(freq_cnt);
+        ofn += ".";
+        ofn += int2string(freq_cnt);
       }
 
       ofstream outFile(ofn.c_str());
 
       for (uint i = 0; i < np; ++i) {
 
-	theta = i*delth;
-	my_float d = clocks_array[pom][freq_cnt][i];
+        theta = i*delth;
+        my_float d = clocks_array[pom][freq_cnt][i];
 
-	outFile << fixed << setprecision(1);
-	outFile << setw(5) << theta;
-	if (linear_gain) {
-	  outFile << setprecision(6) << setw(11) << d
-		  << endl;
-	}
-	else {
-	  outFile << setprecision(6) << setw(10) << " " << 10*log(d)/log(10)
-		  << endl;
-	}
+        outFile << fixed << setprecision(1);
+        outFile << setw(5) << theta;
+        if (linear_gain) {
+          outFile << setprecision(6) << setw(11) << d
+                  << endl;
+        }
+        else {
+          outFile << setprecision(6) << setw(10) << " " << 10*log(d)/log(10)
+                  << endl;
+        }
       }
       outFile.close();
     }
@@ -1523,52 +1523,52 @@ void manyplots() {
       int freq_curr_start = 0;
       while (freq_cnt < numfreq) {
 
-	while(1) {
-	  XEvent e;
+        while(1) {
+          XEvent e;
 
-	  if (! newdraw) {
-	    XNextEvent(dpy, &e);
-	    //	    cout << "got next event, looking for Expose: " << Expose << endl;
-	    //	    cout << e.type << endl;
-	  }
+          if (! newdraw) {
+            XNextEvent(dpy, &e);
+            // cout << "got next event, looking for Expose: " << Expose << endl;
+            // cout << e.type << endl;
+          }
 
-	  if (newdraw || (e.type == Expose) && e.xexpose.count == 0) {
-	  
-	    if (!newdraw) { // i.e. only expose
-	      freq_cnt = freq_curr_start;
-	    }
-	    freq_curr_start = freq_cnt;
-	    for (i = 0; i < 3; ++i) {
-	      for (j = 0; j < 4; ++j) {
-		if (freq_cnt < numfreq) {
-		  polar(k*90, clocks_array[k][freq_cnt],
-			2*j*r + r, 2*i*r + r, r,
-			pdmax[k][freq_cnt]);
-		}
-		freq_cnt = freq_cnt + 1;
-		//cout << "increased f: " << freq_cnt << endl;
-	      }
-	    }
-	    newdraw = false;
-	  
-	  } else if(e.type==ButtonPress) {
-	    //	    cout << "Buttonpress found" << endl;
-	    XClearWindow(dpy, w);
-	    newdraw = true;
-	    break;
-	  }
+          if (newdraw || (e.type == Expose) && e.xexpose.count == 0) {
 
-	  else if (e.type==KeyPress) {
-	    //	    cout << "keyPress found" << endl;
-	    //	    cout << e.xkey.state << endl;
-	    //	    cout << XKeycodeToKeysym(dpy,e.xkey.keycode,0) << endl;
-	    if (XLookupKeysym(&e.xkey, 0) != XK_Alt_L) {
-	      XClearWindow(dpy, w);
-	      newdraw = true;
-	      break;
-	    }
-	  }
-	} // redrawing loop
+            if (!newdraw) { // i.e. only expose
+              freq_cnt = freq_curr_start;
+            }
+            freq_curr_start = freq_cnt;
+            for (i = 0; i < 3; ++i) {
+              for (j = 0; j < 4; ++j) {
+                if (freq_cnt < numfreq) {
+                  polar(k*90, clocks_array[k][freq_cnt],
+                        2*j*r + r, 2*i*r + r, r,
+                        pdmax[k][freq_cnt]);
+                }
+                freq_cnt = freq_cnt + 1;
+                // cout << "increased f: " << freq_cnt << endl;
+              }
+            }
+            newdraw = false;
+
+          } else if(e.type==ButtonPress) {
+            // cout << "Buttonpress found" << endl;
+            XClearWindow(dpy, w);
+            newdraw = true;
+            break;
+          }
+
+          else if (e.type==KeyPress) {
+            // cout << "keyPress found" << endl;
+            // cout << e.xkey.state << endl;
+            // cout << XKeycodeToKeysym(dpy,e.xkey.keycode,0) << endl;
+            if (XLookupKeysym(&e.xkey, 0) != XK_Alt_L) {
+              XClearWindow(dpy, w);
+              newdraw = true;
+              break;
+            }
+          }
+        } // redrawing loop
       }
     }
   }
@@ -1662,26 +1662,26 @@ int main (int argc, char* argv[]) {
       cout << fixed << endl;
       cout << "Scaling  " << freqd + freq_cnt*deltafreq << endl;
       if (lambda != 1) {
-	cout << " f=" << round((freqd + freq_cnt*deltafreq)*299800/lambda)
-	     << " MHz" << endl;
+        cout << " f=" << round((freqd + freq_cnt*deltafreq)*299800/lambda)
+             << " MHz" << endl;
       }
       cout << "ndip: " << ndip << "  nsub: " << nsub;
       cout << "  ngaux: " << ngaux << "  ngaufi: " << ngaufi << endl;
       cout << " num  hl     posy    posz      ar        hgap      v.re   v.im";
       cout << endl;
       for (unsigned int i = 0; i < ndip; i++) {
-	cout << setw(3) << i + 1;
-	cout << fixed;
-	cout.precision(4);
-	cout << " " << setw(3) << hl[i];
-	cout.precision(4);
-	cout << " " << setw(7) << posy[i] << " " <<  setw(7) << posz[i];
-	cout << scientific;
-	cout << " " << setw(7) << ar[i] << " " << hgap[i];
-	cout << fixed;
-	cout.precision(2);
-	cout << " " << setw(6) << v[i].real();
-	cout << " " << setw(6) << v[i].imag() << endl;
+        cout << setw(3) << i + 1;
+        cout << fixed;
+        cout.precision(4);
+        cout << " " << setw(3) << hl[i];
+        cout.precision(4);
+        cout << " " << setw(7) << posy[i] << " " <<  setw(7) << posz[i];
+        cout << scientific;
+        cout << " " << setw(7) << ar[i] << " " << hgap[i];
+        cout << fixed;
+        cout.precision(2);
+        cout << " " << setw(6) << v[i].real();
+        cout << " " << setw(6) << v[i].imag() << endl;
       }
       cout << scientific;
 
@@ -1689,7 +1689,7 @@ int main (int argc, char* argv[]) {
       plasyd();
       cgapex();
       for (uint i = 0; i < ndns1; ++i) {
-	rightz[i] = right_first[i];
+        rightz[i] = right_first[i];
       }
       cgauss();
       // dispose(pfc);
@@ -1699,19 +1699,19 @@ int main (int argc, char* argv[]) {
       // if (gd) {graphdistrib();}
       get_clock(argv, freq_cnt);
       for (uint pordip = 0; pordip < ndip; ++pordip) {
-	hl[pordip] = hl[pordip]+dhl[pordip];
-	posy[pordip] = posy[pordip]+dposy[pordip];
-	posz[pordip] = posz[pordip]+dposz[pordip];
-	ar[pordip] = ar[pordip]+dar[pordip];
-	hgap[pordip] = hgap[pordip]+dhgap[pordip];
+        hl[pordip] = hl[pordip]+dhl[pordip];
+        posy[pordip] = posy[pordip]+dposy[pordip];
+        posz[pordip] = posz[pordip]+dposz[pordip];
+        ar[pordip] = ar[pordip]+dar[pordip];
+        hgap[pordip] = hgap[pordip]+dhgap[pordip];
       }
     }
 
     cout << endl;
     cout << "               E-plane            H-plane        Input impedance"
-	 << endl;
+         << endl;
     cout << "Scaling   Thetamax  Gainmax  Thetamax Gainmax      Re   Im   "
-	 << endl;
+         << endl;
     for (uint freq_cnt = 0; freq_cnt < numfreq; ++freq_cnt) {
       cout << fixed << setprecision(2) << setw(6);
       cout << freqd+freq_cnt*deltafreq;
