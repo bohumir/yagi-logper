@@ -85,7 +85,7 @@ bool initgr() {
 
   dpy = XOpenDisplay(NULL);
   if (!dpy) {
-    cout << "Can't open display";
+    cout << "Can't open X display." << endl;
     return false;
   }
   else {
