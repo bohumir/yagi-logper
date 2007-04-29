@@ -1610,16 +1610,6 @@ var gmin, gmax, fbmin, fbmax, pbdx, x, y: single;
        }
 } *//* dependence */
 
-void read_01(ifstream& inFile, bool& co) {
-  uint nacit;
-  inFile >> nacit;
-  if (nacit == 1) {
-    co = true;
-  } else {
-    co = false;
-  }
-}
-
 /*****************************************************************************/
 int main (int argc, char* argv[]) {
 
