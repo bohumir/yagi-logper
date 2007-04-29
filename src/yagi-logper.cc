@@ -1449,8 +1449,8 @@ void get_clock(char* argv[], int freq_cnt) {
               }
             }
           }
+          closegraph();
         }
-        closegraph();
       }
     }
     fi = 90;
