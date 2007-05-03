@@ -312,6 +312,12 @@ void input(const int argc, char* argv[] ) {
         exit(1);
       }
       cout << "Scaling numfreq: " << numfreq;
+      if (numfreq >  NUMFREQMAX) {
+        cout << endl;
+        cout << "Error: number of scaling frequencies is larger than max (";
+        cout << NUMFREQMAX << ")" << endl;
+        exit(1);
+      }
       cout << " low: " << freqd << " hi: " << freqh << endl;
       scaling = true;
       
