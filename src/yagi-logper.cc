@@ -1241,19 +1241,25 @@ void polar(my_float fi, float* hodndir,
   // setcolor(lightgreen);
   // :7:4
   st = float2string(10.*log(dmax)/log(10));
-  outtextxy(xs-r,ys-r,"Normed at: "+st+"dB");
+  outtextxy(xs-r,ys-r,"Max. gain: "+st+"dB");
 
   if (fi == 0) {
-    outtextxy(xs-r,ys-r+10,"E-plane.");
+    outtextxy(xs-r,ys-r+10,"E-plane");
   }
   else {
-    outtextxy(xs-r,ys-r+10,"H-plane.");
+    outtextxy(xs-r,ys-r+10,"H-plane");
   }
 
   if (scaling) {
     // 4:2
-    st = float2string(freqd + freq_cnt*deltafreq);
-    outtextxy(xs-r,ys-r+20,"Sc:"+st);
+    if (lambda != 1) {
+      st = float2string((freqd + freq_cnt*deltafreq)*299800/lambda);
+      outtextxy(xs-r,ys-r+20,st+"MHz");
+    }
+    else {
+      st = float2string(freqd + freq_cnt*deltafreq);
+      outtextxy(xs-r,ys-r+20,"Sc: "+st);
+    }
   };
 
   // setcolor(white);
