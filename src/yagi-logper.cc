@@ -1658,7 +1658,7 @@ int main (int argc, char* argv[]) {
       cout << fixed << endl;
       cout << "Scaling  " << freqd + freq_cnt*deltafreq << endl;
       if (lambda != 1) {
-        cout << " f=" << round((freqd + freq_cnt*deltafreq)*299800/lambda)
+        cout << " f=" << (freqd + freq_cnt*deltafreq)*299800/lambda
              << " MHz" << endl;
       }
       cout << "ndip: " << ndip << "  nsub: " << nsub;
