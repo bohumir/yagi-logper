@@ -29,7 +29,7 @@ namespace global_names {
     NSUBMAX = NDIPMAX-1,
     IW = (NSUBMAX+1)*(NSUBMAX+2),
     POINTS = 55,
-    NUMFREQMAX = 21;
+    NUMFREQMAX = 51;
 
   static const double PI = M_PI,
     TPI = 2*M_PI,
@@ -73,6 +73,9 @@ namespace global_names {
 
   unsigned int getmaxx = 1024;
   unsigned int getmaxy =  768;
+  unsigned int nplotx = 4;
+  unsigned int nploty = 3;
+
   Display* dpy;
   GC gc;
   Window w;
@@ -1522,9 +1525,9 @@ void manyplots() {
 
   if (initgr()) {
 
-    r = getmaxx / 8;
-    if ((getmaxy / 6) < r) {
-      r = getmaxy / 3;
+    r = getmaxx / (2*nplotx);
+    if ((getmaxy / (2*nploty)) < r) {
+      r = getmaxy / nploty;
     }
   
     // E and H plane
@@ -1550,8 +1553,8 @@ void manyplots() {
               freq_cnt = freq_curr_start;
             }
             freq_curr_start = freq_cnt;
-            for (i = 0; i < 3; ++i) {
-              for (j = 0; j < 4; ++j) {
+            for (i = 0; i < nploty; ++i) {
+              for (j = 0; j < nplotx; ++j) {
                 if (freq_cnt < numfreq) {
                   polar(k*90, clocks_array[k][freq_cnt],
                         2*j*r + r, 2*i*r + r, r,
