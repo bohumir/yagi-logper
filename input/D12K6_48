@@ -13,7 +13,7 @@ dipoles 12
 650 0 2199 6 0 0 0
 640 0 2614 6 0 0 0
 
-scaling 48 1.54 2.14
+scaling 48 1.58 2.05
 
 #linear gain
 file amplit inimp power direct
