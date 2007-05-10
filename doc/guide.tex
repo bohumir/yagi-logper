@@ -1,0 +1,85 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{html}
+
+\author{Bohumir~Jelinek}
+\title{Yagi-logper symmetric dipole array model}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+
+Yagi-logper is a program to model a Yagi or Log-periodic antennas with
+with horizontal cylindrical dipoles. All the dipoles and feeding
+sources need to be symmetric with respect to vertical plane. Diameter
+of should be small in comparison to wavelength and other dimensions in
+the antenna. These restrictions allow more efficient and precise
+solution of the problem. Short theoretical description of the method
+\htmladdnormallink{here}{http://www.cavs.msstate.edu/publications/350jelinek.pdf}.
+Orignal Fortran routines were written by Jorgen Hald at DTU. Then I
+rewrote the code in Pascal at TUKE and then in C++ at MSU as a part of
+my Intro to FEA course.
+
+\section{Input}
+
+Input file name is provided as a command line parameter. It contains
+frequency (or frequencies) in MHz, number of dipoles, geometry of
+dipoles, output specifications and comments. Comments start with \#.
+Each dipole is specified by length, y-coordinate, z-coordinate,
+diameter, gap length, real and imaginary component of feeding voltage.
+
+Example input file is:
+\begin{verbatim}
+frequency 100
+dipoles 12
+925 220 -330 6 0 0 0
+925 -220 -330 6 0 0 0
+860 0 0   6 20 10 0
+725 0 72  6 0 0 0
+715 0 307 6 0 0 0
+705 0 552 6 0 0 0
+695 0 827 6 0 0 0
+685 0 1127 6 0 0 0
+670 0 1457 6 0 0 0
+660 0 1814 6 0 0 0
+650 0 2199 6 0 0 0
+640 0 2614 6 0 0 0
+
+scaling 21 1.54 2.14
+
+#linear gain
+file amplit inimp power direct
+screen amplit inimp power direct
+window distrib direct
+\end{verbatim}
+
+Frequency in the above example has 21 values from 154MHz to 214MHz (it
+will be made more intuitive in the next version - command
+``frequencies 154 1 214'' will be introduced.)
+
+\section{Output}
+
+The ``file'' command (followed by the list parameters to output) in
+the input file requests the output files to be created. Possible
+outputs are ``amplit'' (current amplitudes), ``inimp'' (input
+impedance), ``power'' (power radiated by dipoles) and ``direct''
+(directivity). Directivity (and current distributions in the near
+future) can be displayed in the graphics window, as shown on Figures
+\ref{fig:e48} and \ref{fig:h48}.
+
+\begin{figure}
+  \includegraphics[width=0.95\textwidth]{e48}
+  \caption{\label{fig:e48}E-plane directivity pattern of 15 element
+    Yagi antenna.}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.95\textwidth]{h48}
+  \caption{\label{fig:h48}H-plane directivity pattern of 15 element
+    Yagi antenna.}
+\end{figure}
+
+\end{document}
