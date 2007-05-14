@@ -40,6 +40,8 @@ namespace global_names {
 
   unsigned int ndip, nsub, ngaux, ngaufi;
   unsigned int ndns1, nexc, lexc;
+
+  // dimensions of antenna in the multiplications of lambda
   my_float hl[NDIPMAX],hgap[NDIPMAX],posy[NDIPMAX],posz[NDIPMAX];
   my_float ar[NDIPMAX],dxk[NDIPMAX];
   my_complex v[NDIPMAX];
@@ -201,6 +203,8 @@ void input(const int argc, char* argv[] ) {
     else {
       cout << "Base frequency : " << freq << " MHz" << endl;
     }
+
+    // lambda in the untis of mm
     lambda = 299800/freq;
     getTheLine(inFile, str);
   }
@@ -261,18 +265,20 @@ void input(const int argc, char* argv[] ) {
     getTheLine(inFile, str);
     istringstream istrm2(str);
 
-    istrm2 >> hl[i] >> posy[i] >> posz[i] >> ar[i] >> hgap[i];
+    my_float length_mm, posy_mm, posz_mm, diam_mm, gap_mm;
+    
+    istrm2 >> length_mm >> posy_mm >> posz_mm >> diam_mm >> gap_mm;
     istrm2 >> v[i].real() >> v[i].imag();
     if (istrm2.fail()) {
       cout << "Error: input: could not read dipole # " << i+1 << endl;
       exit(1);
     };
 
-    hl[i] = hl[i]/2/lambda;
-    posy[i] = posy[i]/lambda;
-    posz[i] = posz[i]/lambda;
-    ar[i] = ar[i]/2/lambda;
-    hgap[i] = hgap[i]/2/lambda;
+    hl[i] = length_mm/2/lambda;
+    posy[i] = posy_mm/lambda;
+    posz[i] = posz_mm/lambda;
+    ar[i] = diam_mm/2/lambda;
+    hgap[i] = gap_mm/2/lambda;
   }
 
   // print dipoles
