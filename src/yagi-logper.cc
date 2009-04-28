@@ -13,6 +13,7 @@
    GNU GPL text is included in the LICENSE.text file.
 */
 
+#include <cstdlib>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
