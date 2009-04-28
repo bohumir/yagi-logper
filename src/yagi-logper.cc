@@ -1554,7 +1554,7 @@ void manyplots() {
             // cout << e.type << endl;
           }
 
-          if (newdraw || (e.type == Expose) && e.xexpose.count == 0) {
+          if (newdraw || ((e.type == Expose) && (e.xexpose.count == 0))) {
 
             if (!newdraw) { // i.e. only expose
               freq_cnt = freq_curr_start;
