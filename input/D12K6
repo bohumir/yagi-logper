@@ -16,6 +16,6 @@ dipoles 12
 scaling 21 1.54 2.14
 
 #linear gain
-file amplit inimp power direct
+#file amplit inimp power direct
 screen amplit inimp power direct
 window distrib direct
