@@ -1,6 +1,7 @@
-COMPILATION
-change to src/ subdirectory and type
- gmake
+Change directory to src/
+compile "gmake"
+run: "./yagi-logper ../input/D12K6"
 
-RUN
- yagi-logper ../input/D12K6
+  cd src
+  gmake
+  ./yagi-logper ../input/D12K6
