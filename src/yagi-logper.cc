@@ -19,8 +19,11 @@
 #include <fstream>
 #include <cmath>
 #include <complex>
+#ifdef _WIN32
+#else
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#endif
 
 using namespace std;
 namespace global_names {
@@ -79,13 +82,18 @@ namespace global_names {
   unsigned int nplotx = 4;
   unsigned int nploty = 3;
 
+#ifdef _WIN32
+#else
   Display* dpy;
   GC gc;
   Window w;
+#endif
 }
 
 using namespace global_names;
 
+#ifdef _WIN32
+#else
 /*****************************************************************************/
 bool initgr() {
 
@@ -136,6 +144,7 @@ void putpixel(int x, int y, int color) {
   XDrawPoint(dpy, w, gc, x, y);
   XFlush(dpy);
 }
+#endif
 
 /*****************************************************************************/
 
@@ -1229,6 +1238,8 @@ void pabs() { /* powers */
   };
 } /* pabs */
 
+#ifdef _WIN32
+#else
 /*****************************************************************************/
 void polar(my_float fi, float* hodndir,
            unsigned int xs, unsigned int ys, unsigned int r, my_float dmax) {
@@ -1333,6 +1344,7 @@ void polar(my_float fi, float* hodndir,
     }
   }
 } /*polar*/
+#endif
 
 namespace gc_names {
   const int STEP = 1;
@@ -1436,6 +1448,8 @@ void get_clock(char* argv[], int freq_cnt) {
     }
     else {
       if (! scaling) {
+#ifdef _WIN32
+#else
         if (initgr()) {
 
           // Wait for the MapNotify event
@@ -1473,6 +1487,7 @@ void get_clock(char* argv[], int freq_cnt) {
           }
           closegraph();
         }
+#endif
       }
     }
     fi = 90;
@@ -1526,6 +1541,8 @@ void get_clock(char* argv[], int freq_cnt) {
 
 } /* get_clock */
 
+#ifdef _WIN32
+#else
 /*****************************************************************************/
 void manyplots() {
   unsigned int r, i, j, k;
@@ -1595,6 +1612,7 @@ void manyplots() {
     }
   }
 } /*manyplots*/
+#endif
 
 /*****************************************************************************/
 /*
@@ -1734,7 +1752,10 @@ int main (int argc, char* argv[]) {
       cout << " " << setw(8) << pinimped[freq_cnt].real();
       cout << " " << setw(8) << pinimped[freq_cnt].imag() << endl;
     };
+#ifdef _WIN32
+#else
     manyplots();
+#endif
     // dependence();
     // dispose(ph);
   }
