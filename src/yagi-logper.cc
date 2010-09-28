@@ -391,11 +391,11 @@ void input(const int argc, char* argv[] ) {
 
 
 /*****************************************************************************/
-void dqgini(unsigned int * ngau, uint& ngau1, uint& ngau2) {
+void dqgini(unsigned int * ngau, unsigned int& ngau1, unsigned int& ngau2) {
   unsigned int ngauss[2];
   
-  for (uint j = 0; j < 2; ++j) {
-    uint k = ngau[j];
+  for (unsigned int j = 0; j < 2; ++j) {
+    unsigned int k = ngau[j];
     if (k == 1) {
       ngauss[j] = 1;
       pgauss[j][0] = 0.577350269189626;
@@ -439,14 +439,14 @@ void dqgini(unsigned int * ngau, uint& ngau1, uint& ngau2) {
       wgauss[j][7] = 0.2715245941175409E-1;
     }
     k = ngauss[j];
-    for (uint i = 0; i < k; ++i) {
+    for (unsigned int i = 0; i < k; ++i) {
       pgauss[j][i] = pgauss[j][i]/2;
       wgauss[j][i] = wgauss[j][i]/2;
     }
   };
-  for (uint j = 0; j < 2; ++j) {
-    uint k = ngauss[j];
-    for (uint i = 0; i < k; ++i) {
+  for (unsigned int j = 0; j < 2; ++j) {
+    unsigned int k = ngauss[j];
+    for (unsigned int i = 0; i < k; ++i) {
       int ii = i+k;
       pgauss[j][ii] = 0.5+pgauss[j][i];
       pgauss[j][i] = 0.5-pgauss[j][i];
@@ -455,24 +455,24 @@ void dqgini(unsigned int * ngau, uint& ngau1, uint& ngau2) {
   };
   ngau1 = ngauss[0]*2;
   ngau2 = ngauss[1]*2;
-  for (uint i = 0; i < ngau2; ++i) {
+  for (unsigned int i = 0; i < ngau2; ++i) {
     pgauss[1][i] = sin(PIH*pgauss[1][i]);
   }
 } /* dqgini */
 
 /*****************************************************************************/
-void copydip(uint k, uint ns1, uint km) {
-  uint i1,i2,im,jm;
-  uint id;
+void copydip(unsigned int k, unsigned int ns1, unsigned int km) {
+  unsigned int i1,i2,im,jm;
+  unsigned int id;
 
   i1 = k*ns1;
   i2 = i1+nsub;
   id = km-k;
   id = id*ns1;
 
-  for (uint i = i1; i <= i2; ++i) {
+  for (unsigned int i = i1; i <= i2; ++i) {
     im = i+id;
-    for (uint j = i1; j <= i2; ++j) {
+    for (unsigned int j = i1; j <= i2; ++j) {
       jm = j+id;
       pfc[i][j] = pfc[im][jm];
     }
@@ -483,7 +483,7 @@ void copydip(uint k, uint ns1, uint km) {
 namespace plasyd_names{
   unsigned int ngau[2];
   unsigned int ns1,ns2,ns22,i,k,ngau1,ngau2,kk,kk1,ll;
-  uint km;
+  unsigned int km;
   my_complex res;
 }
 
@@ -491,7 +491,7 @@ namespace samdip_names {
   my_complex pw[IW];
   my_float fik,fi,sfik,alfak,beta2,bs,bls,s,t,tt,q;
   my_complex p,c,cc,x,y,z;
-  uint i,n,n1,ns21,i0,ii,jj,j;
+  unsigned int i,n,n1,ns21,i0,ii,jj,j;
 }
 
 void f00(int i) {
@@ -505,7 +505,7 @@ void f00(int i) {
   xx = x*x;
   a = sin(fik*(1-x))/sfik;
   b = 1-q*x;
-  for (uint j = 0; j < ngau2; ++j) {
+  for (unsigned int j = 0; j < ngau2; ++j) {
     s = alfak*pgauss[1][j];
     r = sqrt(xx+s*s);
     t = fik*r;
@@ -527,7 +527,7 @@ void f01a(int i) {
   x = pgauss[0][i];
   xx = (x+1)*(x+1);
   a = sin(fik*(1-x))/sfik;
-  for (uint j = 0; j < ngau2; ++j) {
+  for (unsigned int j = 0; j < ngau2; ++j) {
     s = alfak*pgauss[1][j];
     r = sqrt(xx+s*s);
     t = fik*r;
@@ -550,7 +550,7 @@ void f01b(int i) {
   b = fik*x;
   a = sin(b)/sfik;
   b = b/sfik;
-  for (uint j = 0; j < ngau2; ++j) {
+  for (unsigned int j = 0; j < ngau2; ++j) {
     s = alfak*pgauss[1][j];
     r = sqrt(xx+s*s);
     t = fik*r;
@@ -573,7 +573,7 @@ void f0n(int i) {
   xxm = (x-q)*(x-q);
   xxp = (x+q)*(x+q);
   a = sin(fik*(1-x))/sfik;
-  for (uint j = 0; j < ngau2; ++j) {
+  for (unsigned int j = 0; j < ngau2; ++j) {
     s = alfak*pgauss[1][j];
     s2 = s*s;
     rp = sqrt(xxp+s2);
@@ -588,7 +588,7 @@ void f0n(int i) {
 } /* f0n */
 
 /*****************************************************************************/
-void samdip(uint k) {
+void samdip(unsigned int k) {
 
   using namespace plasyd_names;
   using namespace samdip_names;
@@ -602,7 +602,7 @@ void samdip(uint k) {
 
   bs = 0;
   bls = 0;
-  for (uint i = 0; i < ngau2; ++i) {
+  for (unsigned int i = 0; i < ngau2; ++i) {
     s = alfak*pgauss[1][i];
     t = sqrt(1+s*s);
     tt = log(1+t);
@@ -620,7 +620,7 @@ void samdip(uint k) {
   c = p;
 
   /* dqg(@f00,c); */
-  for (uint i = 0; i < ngau1; ++i) {
+  for (unsigned int i = 0; i < ngau1; ++i) {
     f00(i);
     c.real() = c.real()+wgauss[0][i]*res.real();
     c.imag() = c.imag()+wgauss[0][i]*res.imag();
@@ -635,7 +635,7 @@ void samdip(uint k) {
   my_complex c;
   c.real() = 0;
   c.imag() = 0;
-  for (uint i = 0; i < ngau1; ++i) {
+  for (unsigned int i = 0; i < ngau1; ++i) {
       f01a(i);
       c.real() = c.real()+wgauss[0][i]*res.real();
       c.imag() = c.imag()+wgauss[0][i]*res.imag();
@@ -643,7 +643,7 @@ void samdip(uint k) {
 
   /* dqg(@f01b,cc); */
   cc = p;
-  for (uint i = 0; i < ngau1; ++i) {
+  for (unsigned int i = 0; i < ngau1; ++i) {
       f01b(i);
       cc.real() = cc.real()+wgauss[0][i]*res.real();
       cc.imag() = cc.imag()+wgauss[0][i]*res.imag();
@@ -653,14 +653,14 @@ void samdip(uint k) {
   pw[1].imag() = c.imag()+cc.imag();
 
   /* remaining coupling integrals */
-  for (uint n1 = 2; n1 < ns22; ++n1) {
+  for (unsigned int n1 = 2; n1 < ns22; ++n1) {
     n = n1-1;
     q = n+1;
     /* dqg(@f0n,c); */
     my_complex c;
     c.real() = 0;
     c.imag() = 0;
-    for (uint i = 0; i < ngau1; ++i) {
+    for (unsigned int i = 0; i < ngau1; ++i) {
       f0n(i);
       c.real() = c.real()+wgauss[0][i]*res.real();
       c.imag() = c.imag()+wgauss[0][i]*res.imag();
@@ -673,7 +673,7 @@ void samdip(uint k) {
   y = pw[0];
   t = 2*cos(fik);
   ns21 = ns22-1;
-  for (uint i = 0; i < ns21; ++i) {
+  for (unsigned int i = 0; i < ns21; ++i) {
     z = pw[i+1];
     pw[i].real() = x.real()+z.real()-t*y.real();
     pw[i].imag() = x.imag()+z.imag()-t*y.imag();
@@ -683,13 +683,13 @@ void samdip(uint k) {
 
   /* utilize antenna symmetry while forming impedance submatrix */
   i0 = k*ns1;
-  for (uint ii = 0; ii < ns1; ++ii) {
+  for (unsigned int ii = 0; ii < ns1; ++ii) {
     int i = i0+ii;
     pfc[i][i].real() = pw[0].real()+pw[ii+ii].real();
     pfc[i][i].imag() = pw[0].imag()+pw[ii+ii].imag();
   }
 
-  for (uint ii = 0; ii < nsub; ++ii) {
+  for (unsigned int ii = 0; ii < nsub; ++ii) {
     int i = i0+ii+1;
     for (jj = 0; jj <= ii; ++jj) {
       j = i0+jj;
@@ -703,7 +703,7 @@ void samdip(uint k) {
 } /* samdip */
 
 namespace difdip_names {
-  uint k,l,i,j,i0,j0,jj,m,ii,iip,iim,is,js;
+  unsigned int k,l,i,j,i0,j0,jj,m,ii,iip,iim,is,js;
   my_float ss,fi,sfi,beta2,del,q,x0,x01,dkl,t;
   my_complex c;
   my_complex pw[NSUBMAX+2][NSUBMAX+1];
@@ -733,14 +733,14 @@ void edif4(int m) {
                                +sin(x3)/r3+sin(x4)/r4);
 } /* edif4 */
 
-void difdip(uint kk, uint ll) {
+void difdip(unsigned int kk, unsigned int ll) {
   using namespace plasyd_names;
   using namespace difdip_names;
 
   //  label zac,kon;
   //  new(pw);
-  uint k = kk;
-  uint l = ll;
+  unsigned int k = kk;
+  unsigned int l = ll;
   if (k == l) {
     cout << "Error: k == l in difdip" << endl;
     exit(1);
@@ -756,16 +756,16 @@ void difdip(uint kk, uint ll) {
     beta2 = ss/fi/fi;
     dkl = dxk[k]/fi;
     /* coupling integral by numerical integration */
-    for (uint i = 0; i < ns2; ++i) {        /* m = relatively to*/
+    for (unsigned int i = 0; i < ns2; ++i) {        /* m = relatively to*/
       del = i*dkl;
-      for (uint j = 0; j < ns1; ++j) {      /* i = from pair*/
+      for (unsigned int j = 0; j < ns1; ++j) {      /* i = from pair*/
         q = j;
         x0 = q-del;
         x01 = q+del;
         /* dqg(edif4,c); */
         c.real() = 0;
         c.imag() = 0;
-        for (uint m = 0; m < ngau1; ++m) {
+        for (unsigned int m = 0; m < ngau1; ++m) {
           edif4(m);
           c.real() = c.real()+wgauss[0][m]*res.real();
           c.imag() = c.imag()+wgauss[0][m]*res.imag();
@@ -776,21 +776,21 @@ void difdip(uint kk, uint ll) {
     }
 
     /* use integrals to form impedance matrix elements */
-    uint i0 = k*ns1;
-    uint j0 = l*ns1;
-    uint i = i0;
+    unsigned int i0 = k*ns1;
+    unsigned int j0 = l*ns1;
+    unsigned int i = i0;
     t = cos(dxk[k]);
-    for (uint jj = 0; jj < ns1; ++jj) {
+    for (unsigned int jj = 0; jj < ns1; ++jj) {
       j = j0+jj;
       pfc[i][j].real() = 2*(pw[1][jj].real()-t*pw[0][jj].real());
       pfc[i][j].imag() = 2*(pw[1][jj].imag()-t*pw[0][jj].imag());
     };
     t = 2*t;
-    for (uint ii = 1; ii < ns1; ++ii) {
+    for (unsigned int ii = 1; ii < ns1; ++ii) {
       i = i0+ii;
       iip = ii+1;
       iim = ii-1;
-      for (uint jj = 0; jj < ns1; ++jj) {
+      for (unsigned int jj = 0; jj < ns1; ++jj) {
         j = j0+jj;
         pfc[i][j].real() = pw[iip][jj].real()+pw[iim][jj].real()-t*pw[ii][jj].real();
         pfc[i][j].imag() = pw[iip][jj].imag()+pw[iim][jj].imag()-t*pw[ii][jj].imag();
@@ -811,10 +811,10 @@ void difdip(uint kk, uint ll) {
         goto zac;
       };
     kon: /* sym */
-      for (uint ii = 0; ii < ns1; ++ii) {
+      for (unsigned int ii = 0; ii < ns1; ++ii) {
         i = i0+ii;
         is = j0+ii;
-        for (uint jj = 0; jj < ns1; ++jj) {
+        for (unsigned int jj = 0; jj < ns1; ++jj) {
           j = j0+jj;
           js = i0+jj;
           pfc[is][js] = pfc[i][j];
@@ -834,7 +834,7 @@ void plasyd() { /* calculates impedance matrix */
   ns1 = nsub+1;
   ns2 = ns1+1;
   ns22 = ns1+ns1;
-  for (uint i = 0; i < ndip; ++i) {
+  for (unsigned int i = 0; i < ndip; ++i) {
     dxk[i] = hl[i]*TPI/ns1;
   }
   ngau[0] = ngaux+1;
@@ -842,8 +842,8 @@ void plasyd() { /* calculates impedance matrix */
   dqgini(ngau, ngau1, ngau2);
 
   /* same dipole */
-  for (uint k = 0; k < ndip; ++k) {
-    uint i = 0;
+  for (unsigned int k = 0; k < ndip; ++k) {
+    unsigned int i = 0;
     while (i<k) {
       if ((dxk[k] == dxk[i]) && (ar[i] == ar[k])) {
         km = i;
@@ -862,8 +862,8 @@ void plasyd() { /* calculates impedance matrix */
     ngau[0] = ngaux;
     ngau[1] = 1;
     dqgini(ngau,ngau1,ngau2);
-    for (uint kk = 1; kk < ndip; ++kk) {
-      for (uint ll = 0; ll < kk; ++ll) {
+    for (unsigned int kk = 1; kk < ndip; ++kk) {
+      for (unsigned int ll = 0; ll < kk; ++ll) {
         difdip(kk,ll);
       }
     }
@@ -873,7 +873,7 @@ void plasyd() { /* calculates impedance matrix */
 
 /*****************************************************************************/
 namespace cgapex_names {
-  uint i,k,m,ns1,kr;
+  unsigned int i,k,m,ns1,kr;
   my_float fik,gk,g0k,x1mg,x2mg,x3mg;
   my_complex c;
 }
@@ -888,11 +888,11 @@ void shift() {
 
 void cgapex() {
   using namespace cgapex_names;
-  for (uint i = 0; i < ndns1; ++i) {
+  for (unsigned int i = 0; i < ndns1; ++i) {
     right_first[i].real() = 0;
     right_first[i].imag() = 0;
   };
-  uint k = 0;
+  unsigned int k = 0;
   ns1 = nsub+1;
   nexc = 0;
   /* dip. loop starts here */
@@ -960,33 +960,33 @@ void cgauss() {
 
   ////  cout << "Solving the system of equations." << endl;
 
-  for (uint jz = 0; jz < ndns1; ++jz) {
+  for (unsigned int jz = 0; jz < ndns1; ++jz) {
     h = pfc[jz][jz].real()*pfc[jz][jz].real()+pfc[jz][jz].imag()*pfc[jz][jz].imag();
     c.real() = (right_first[jz].real()*pfc[jz][jz].real()
                 +right_first[jz].imag()*pfc[jz][jz].imag())/h;
     c.imag() = (right_first[jz].imag()*pfc[jz][jz].real()-
                 right_first[jz].real()*pfc[jz][jz].imag())/h;
     right_first[jz] = c;
-    for (uint jh = ndns1; jh > jz; --jh) {
+    for (unsigned int jh = ndns1; jh > jz; --jh) {
       c.real() = (pfc[jz][jh-1].real()*pfc[jz][jz].real()
                   +pfc[jz][jh-1].imag()*pfc[jz][jz].imag())/h;
       c.imag() = (pfc[jz][jh-1].imag()*pfc[jz][jz].real()-
                   pfc[jz][jh-1].real()*pfc[jz][jz].imag())/h;
       pfc[jz][jh-1] = c;
     }
-    for (uint iz = jz+1; iz < ndns1; ++iz) {
+    for (unsigned int iz = jz+1; iz < ndns1; ++iz) {
       /* right_first[iz] = right_first[iz]-right_first[jz]*pfc[iz][jz]; */
       right_first[iz].real() = right_first[iz].real()-right_first[jz].real()*pfc[iz][jz].real()
         +right_first[jz].imag()*pfc[iz][jz].imag();
       right_first[iz].imag() = right_first[iz].imag()-right_first[jz].real()*pfc[iz][jz].imag()
         -right_first[jz].imag()*pfc[iz][jz].real();
-      for (uint jh = ndns1-1; jh > jz; --jh) {
+      for (unsigned int jh = ndns1-1; jh > jz; --jh) {
         pfc[iz][jh].real() = pfc[iz][jh].real()-pfc[jz][jh].real()*pfc[iz][jz].real()
           +pfc[jz][jh].imag()*pfc[iz][jz].imag();
         pfc[iz][jh].imag() = pfc[iz][jh].imag()-pfc[jz][jh].real()*pfc[iz][jz].imag()
           -pfc[jz][jh].imag()*pfc[iz][jz].real();
       };
-      uint jh = jz;
+      unsigned int jh = jz;
       c.real() = -pfc[jz][jh].real()*pfc[iz][jz].real()
         +pfc[jz][jh].imag()*pfc[iz][jz].imag();
       c.imag() = -pfc[jz][jh].real()*pfc[iz][jz].imag()
@@ -997,10 +997,10 @@ void cgauss() {
   };
 
   /* zero out above the diagonal */
-  for (uint jz = ndns1-1; jz > 0; --jz) {
+  for (unsigned int jz = ndns1-1; jz > 0; --jz) {
     c.real() = right_first[jz-1].real();
     c.imag() = right_first[jz-1].imag();
-    for (uint jh = ndns1-1; jh >= jz; --jh) {
+    for (unsigned int jh = ndns1-1; jh >= jz; --jh) {
       /* c = c-right_first[jh]*pfc[jz][jh]; */
       c.real() = c.real()-right_first[jh].real()*pfc[jz-1][jh].real()
         +right_first[jh].imag()*pfc[jz-1][jh].imag();
@@ -1010,7 +1010,7 @@ void cgauss() {
     right_first[jz-1] = c;
     c.real() = 0;
     c.imag() = 0;
-    for (uint jh = ndns1-1; jh >= jz; --jh) {
+    for (unsigned int jh = ndns1-1; jh >= jz; --jh) {
       pfc[jz-1][jh] = c;
     }
   }
@@ -1022,7 +1022,7 @@ void camplit() { /* calculates amplitudes and phases of currents */
 
   ////  cout << "Calculating amplitudes." << endl;
 
-  for (uint i = 0; i < ndns1; ++i) {
+  for (unsigned int i = 0; i < ndns1; ++i) {
 
     h = right_first[i].real()*right_first[i].real()+right_first[i].imag()*right_first[i].imag();
     h = sqrt(h);
@@ -1181,7 +1181,7 @@ procedure graphdistrib;
 /*****************************************************************************/
 void inimp() {
   my_float pom;
-  uint iz;
+  unsigned int iz;
   if (nexc == 1) {
     iz = (nsub+1)*lexc;
     pom = right_first[iz].real()*right_first[iz].real()
@@ -1205,15 +1205,15 @@ void inimp() {
 void pabs() { /* powers */
   my_float w[NDIPMAX];
   my_float cim;
-  uint ns1,kr;
+  unsigned int ns1,kr;
 
   power = 0;
   ns1 = nsub+1;
-  for (uint k = 0; k < ndip; ++k) {
+  for (unsigned int k = 0; k < ndip; ++k) {
     kr = k*ns1;
     cim = -right_first[kr].imag()*rightz[kr].real()
       +right_first[kr].real()*rightz[kr].imag();
-    for (uint m = 0; m < nsub; ++m) {
+    for (unsigned int m = 0; m < nsub; ++m) {
       kr = kr+1;
       cim = cim-right_first[kr].imag()*rightz[kr].real()
         +right_first[kr].real()*rightz[kr].imag();
@@ -1231,7 +1231,7 @@ void pabs() { /* powers */
 
 /*****************************************************************************/
 void polar(my_float fi, float* hodndir,
-           uint xs, uint ys, uint r, my_float dmax) {
+           unsigned int xs, unsigned int ys, unsigned int r, my_float dmax) {
 
   const int NKRU = 5;
   int dbkru[NKRU] = { 3, 10, 20, 30, 40};
@@ -1337,7 +1337,7 @@ void polar(my_float fi, float* hodndir,
 namespace gc_names {
   const int STEP = 1;
   my_float theta,thetamax,fi,delth,d;
-  uint np ,i;
+  unsigned int np ,i;
   short int pom;
 }
 
@@ -1362,12 +1362,12 @@ void direct() {
   c.imag() = 0;
   ns1 = nsub+1;
 
-  for (uint k = 0; k < ndip; ++k) {
+  for (unsigned int k = 0; k < ndip; ++k) {
     fik = dxk[k];
     kr = k*ns1;
     s = stcf*fik;
     ck = right_first[kr];
-    for (uint m = 1; m <= nsub; ++m) {
+    for (unsigned int m = 1; m <= nsub; ++m) {
       ck.real() = ck.real()+right_first[kr+m].real()*cos(m*s);
       ck.imag() = ck.imag()+right_first[kr+m].imag()*cos(m*s);
     }
@@ -1413,7 +1413,7 @@ void get_clock(char* argv[], int freq_cnt) {
 
   for (short int pom = 0; pom < 2; ++pom) {
     dmax = 0;
-    for (uint i = 0; i < np; ++i) {
+    for (unsigned int i = 0; i < np; ++i) {
 
       theta = i*delth;
       direct();
@@ -1504,7 +1504,7 @@ void get_clock(char* argv[], int freq_cnt) {
 
       ofstream outFile(ofn.c_str());
 
-      for (uint i = 0; i < np; ++i) {
+      for (unsigned int i = 0; i < np; ++i) {
 
         theta = i*delth;
         my_float d = clocks_array[pom][freq_cnt][i];
@@ -1640,7 +1640,7 @@ int main (int argc, char* argv[]) {
     // new(pfc);
     plasyd();
     cgapex();
-    for (uint i = 0; i < ndns1; ++i) {
+    for (unsigned int i = 0; i < ndns1; ++i) {
       rightz[i] = right_first[i];
     }
     cgauss();
@@ -1657,7 +1657,7 @@ int main (int argc, char* argv[]) {
 
     deltafreq = (freqh-freqd)/(numfreq-1);
     // new(ph);
-    for (uint pordip = 0; pordip < ndip; ++pordip) {
+    for (unsigned int pordip = 0; pordip < ndip; ++pordip) {
       dhl[pordip] = hl[pordip]*deltafreq;
       dposy[pordip] = posy[pordip]*deltafreq;
       dposz[pordip] = posz[pordip]*deltafreq;
@@ -1700,7 +1700,7 @@ int main (int argc, char* argv[]) {
       // new(pfc);
       plasyd();
       cgapex();
-      for (uint i = 0; i < ndns1; ++i) {
+      for (unsigned int i = 0; i < ndns1; ++i) {
         rightz[i] = right_first[i];
       }
       cgauss();
@@ -1710,7 +1710,7 @@ int main (int argc, char* argv[]) {
       pabs();
       // if (gd) {graphdistrib();}
       get_clock(argv, freq_cnt);
-      for (uint pordip = 0; pordip < ndip; ++pordip) {
+      for (unsigned int pordip = 0; pordip < ndip; ++pordip) {
         hl[pordip] = hl[pordip]+dhl[pordip];
         posy[pordip] = posy[pordip]+dposy[pordip];
         posz[pordip] = posz[pordip]+dposz[pordip];
@@ -1724,7 +1724,7 @@ int main (int argc, char* argv[]) {
          << endl;
     cout << "Scaling   Thetamax  Gainmax  Thetamax Gainmax      Re   Im   "
          << endl;
-    for (uint freq_cnt = 0; freq_cnt < numfreq; ++freq_cnt) {
+    for (unsigned int freq_cnt = 0; freq_cnt < numfreq; ++freq_cnt) {
       cout << fixed << setprecision(2) << setw(6);
       cout << freqd+freq_cnt*deltafreq;
       cout << " " << setw(9) << pthetamax[0][freq_cnt];
