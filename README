@@ -1,7 +1,12 @@
-Change directory to src/
-compile "gmake"
-run: "./yagi-logper ../input/D12K6"
+On UNIX:
 
   cd src
   gmake
   ./yagi-logper ../input/D12K6
+
+On Windows (tested with mingw C++ compiler):
+
+  cd src
+  g++ yagi-logper.cc
+  cd ..
+  src/a.exe input/D12K6
