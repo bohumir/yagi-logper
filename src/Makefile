@@ -1,4 +1,5 @@
-LDFLAGS = -L/usr/X11R6/lib -lX11
+LDFLAGS = -L/usr/X11R6/lib
+LDLIBS = -lX11
 
 yagi-logper: yagi-logper.cc
 
