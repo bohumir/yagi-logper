@@ -48,6 +48,7 @@ namespace global_names {
   // dimensions of antenna in the multiplications of lambda
   my_float hl[NDIPMAX],hgap[NDIPMAX],posy[NDIPMAX],posz[NDIPMAX];
   my_float ar[NDIPMAX],dxk[NDIPMAX];
+  unsigned int tag[NDIPMAX];
   my_complex v[NDIPMAX];
   my_float lambda;
 
@@ -160,6 +161,19 @@ bool getTheLine(ifstream& is, string& str) {
   return success;
 }
 
+bool getNECLine(ifstream& is, string& str) {
+
+  bool success, comment, empty;
+  do {
+    success = getline(is, str);
+    comment = (str.length() >= 2) && ((str.substr(0,2) == "CM")||(str.substr(0,2) == "CE"));
+
+    empty = (str == "");
+    //    cout << "***********" << str << endl;
+  } while (success && (comment || empty));
+  return success;
+}
+
 bool str2mf(const string& s, my_float& out) {
   istringstream i(s);
   i >> out;
@@ -183,14 +197,9 @@ string float2string(const float& number) {
 /* reading input file */
 void input(const int argc, char* argv[] ) {
 
-  if (argc == 1) {
-    cout << "Error: Missing command line argument (input file name) !" << endl;
-    exit(1);
-  }
-
   ifstream inFile(argv[1]);
   if (!inFile) {
-    cout << "Error: input: input file not found !" << endl;
+    cout << "Error: Input file not found !" << endl;
     exit(1);
   }
 
@@ -206,7 +215,7 @@ void input(const int argc, char* argv[] ) {
   if (str.find(look_for, 0) != string::npos) {
     my_float freq;
     if (!str2mf(str.substr(look_for.length()), freq)) {
-      cout << "Error: input: could not read frequency" << endl;
+      cout << "Error: Input: could not read frequency" << endl;
       cout << " from string: \"" << str << "\"" << endl;
       exit(1);
     }
@@ -231,12 +240,12 @@ void input(const int argc, char* argv[] ) {
       
     istrm >> ndip;
     if (istrm.fail()) {
-      cout << "Error: input: could not read # of dipoles" << endl;
+      cout << "Error: Input: could not read # of dipoles" << endl;
       cout << " from string: \"" << str << "\"" << endl;
       exit(1);
     }
     if (ndip == 0) {
-      cout << "Error: input: Number of dipoles shoudl be > 0" << endl;
+      cout << "Error: Input: Number of dipoles shoudl be > 0" << endl;
       exit(1);
     }
 
@@ -248,7 +257,7 @@ void input(const int argc, char* argv[] ) {
     else {
       istrm >> nsub >> ngaux >> ngaufi;
       if (istrm.fail()) {
-        cout << "Error: input: ndip should be followed by nsub,ngaux,ngaufi";
+        cout << "Error: Input: ndip should be followed by nsub,ngaux,ngaufi";
         cout << endl;
         exit(1);
       }
@@ -263,7 +272,7 @@ void input(const int argc, char* argv[] ) {
 
   }
   else {
-    cout << "Error: input: unexpected input: " << endl;
+    cout << "Error: Input: unexpected input: " << endl;
     cout << " \"" << str << "\"" << endl;
     cout << " expected: dipoles (or frequency)" << endl;
     exit(1);
@@ -280,7 +289,7 @@ void input(const int argc, char* argv[] ) {
     istrm2 >> length_mm >> posy_mm >> posz_mm >> diam_mm >> gap_mm;
     istrm2 >> v[i].real() >> v[i].imag();
     if (istrm2.fail()) {
-      cout << "Error: input: could not read dipole # " << i+1 << endl;
+      cout << "Error: Input: could not read dipole # " << i+1 << endl;
       exit(1);
     };
 
@@ -325,7 +334,7 @@ void input(const int argc, char* argv[] ) {
 
       istrm >> numfreq >> freqd >> freqh;
       if (istrm.fail()) {
-        cout << "Error: input: could not read scaling numfreq,freqd,freqh from"
+        cout << "Error: Input: could not read scaling numfreq,freqd,freqh from"
              << endl;
         cout << " from this string: \"" << str << "\"" << endl;
         exit(1);
@@ -333,7 +342,7 @@ void input(const int argc, char* argv[] ) {
       cout << "Scaling numfreq: " << numfreq;
       if (numfreq >  NUMFREQMAX) {
         cout << endl;
-        cout << "Error: number of scaling frequencies is larger than max (";
+        cout << "Error: Input: number of scaling frequencies is larger than max (";
         cout << NUMFREQMAX << ")" << endl;
         exit(1);
       }
@@ -387,12 +396,438 @@ void input(const int argc, char* argv[] ) {
       }
     }
     else {
-      cout << "Error: input: unexpected input: " << endl;
+      cout << "Error: Input: unexpected input: " << endl;
       cout << " \"" << str << endl;
       cout << " expected: linear gain, file, screen or window" << endl;
       exit(1);
     }
   }
+
+  inFile.close();
+
+} /* input */
+
+
+/* reading NEC input file */
+void inputNEC(const int argc, char* argv[] ) {
+
+  ifstream inFile(argv[1]);
+  if (!inFile) {
+    cout << "Error: Input: input file not found !" << endl;
+    exit(1);
+  }
+
+  cout << "Reading input file \"" << argv[1] << "\" ..." << endl;
+
+  // //find if the frequency is specified first
+  // for now, all dimensions are assumed to be in terms of lambda
+  //
+  lambda = 1;
+  cout << " Assuming dimensions in Lambda (frequency not specified)" << endl;
+
+  string str;
+
+  ngaux = 4;
+  ngaufi = 4;
+
+  /*
+  istrm >> nsub >> ngaux >> ngaufi;
+  if (istrm.fail()) {
+    cout << "Error: Input: ndip should be followed by nsub,ngaux,ngaufi";
+    cout << endl;
+    exit(1);
+  }
+  */
+
+  ndip = 0;
+  bool done = false;
+  my_float centy = 0;
+
+  // read dipole positions and sizes, expect "GW" keyword
+  //
+  do {
+    
+    getNECLine(inFile, str);    
+
+    string look_for;
+    look_for = "GW ";
+    if (str.find(look_for,0) != string::npos) {
+      istringstream istrm(str.substr(look_for.length()));
+      
+      unsigned int tagc;
+      istrm >> tagc;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read tag" << endl;
+        cout << "  input line: "<< endl;
+        cout << str << endl;
+        exit(1);
+      }
+      tag[ndip] = tagc;
+
+      unsigned int nsubc;
+      istrm >> nsubc;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read # of segments." << endl;
+        cout << "  input line: "<< endl;
+        cout << str << endl;
+        exit(1);
+      }
+
+      if (nsubc < 1) {
+        cout << "Error: Input: nsub < 1: " << nsubc << endl;
+        cout << " input line: "<< endl;
+        cout << str << endl;
+        exit(1);
+      }
+
+      if ((nsubc % 2) != 1) {
+        cout << "Error: Input: only odd # of segments allowed." << endl
+             << "  found: " << nsubc << endl;
+        cout << " input line: "<< endl;
+        cout << str << endl;
+        exit(1);
+      }
+
+      if (ndip == 0) {
+        nsub = (nsubc - 1) / 2;
+      } else {
+        if (((nsubc - 1)/2) != nsub) {
+          cout << "Error: Input: All elements must have same # of segments."
+               << endl;
+          cout << "  found " << nsubc
+               << "  segments, should be " << nsub
+               << endl;
+          cout << "  input line: "<< endl;
+          cout << str << endl;
+          exit(1);
+        }
+      }
+
+      my_float posx_mm, posy_mm, posz_mm;
+      my_float mosx_mm, mosy_mm, mosz_mm, dia_mm;
+    
+      istrm >> mosx_mm >> mosy_mm >> mosz_mm
+            >> posx_mm >> posy_mm >> posz_mm
+            >> dia_mm;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read pos/radius." << endl;
+        cout << "  input line: "<< endl;
+        cout << str << endl;
+        exit(1);
+      }
+
+      if (ndip == 0) {
+        centy = (posy_mm + mosy_mm)/2;
+      } else {
+        my_float centyc = (posy_mm + mosy_mm)/2;
+
+        if (centyc != centy) {
+          cout << "Error: Input: All elements must be symmetric wrt. xz plane!"
+               << endl;
+          cout << "   Element # " << ndip+1
+               << " has y center " << centyc
+               << ", should be " << centy
+               << endl;
+          exit(1);
+        }
+
+        if (posx_mm != mosx_mm) {
+          cout << "Erorr: All elements must be parallel to xz plane!"
+               << endl;
+          cout << "   Element # " << ndip+1
+               << " starts at x=" << mosx_mm << ", ends at x=" << posx_mm
+               << "," << endl;
+          cout << "but should start and end at the same x coord."
+               << endl;
+          exit(1);
+        }
+
+        if (posz_mm != mosz_mm) {
+          cout << "Erorr: All elements must be parallel to xz plane!";
+          cout << "   Element number " << ndip+1
+               << "starts at z " << mosz_mm << " , ends at " << posz_mm
+               << "but should start and end at the same z coord."
+               << endl;
+          exit(1);
+        }
+      }
+
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read positions # " << ndip+1 << endl;
+        cout << str << endl;
+        exit(1);
+      }
+      //      posx[ndip] = posx_mm/lambda; must be 0
+      // +/- y and z must be the same
+      
+      //      hl[ndip] = length_mm/2/lambda;
+      hl[ndip] = (posy_mm-centy)/lambda;
+      posy[ndip] = posz_mm/lambda;
+      posz[ndip] = posx_mm/lambda;
+      //      ar[ndip] = dia_mm/2/lambda;
+      ar[ndip] = dia_mm/lambda; // nec2 expects radius
+      hgap[ndip] = 0; ////gap_mm/2/lambda;
+      ndip = ndip + 1;
+  
+    } else {
+      done = true;
+    }
+
+  } while (!done);
+
+  if (ndip == 0) {
+    cout << "Error: Input: did not read any dipole." << endl;
+    exit(1);
+  }
+
+  ndns1 = ndip * (nsub + 1);
+  if (ndns1 > NDNS1MAX) {
+    cout << "Error input: ndns1 > NDNS1MAX !" << endl;
+    cout << "           " << ndns1 << ">" << NDNS1MAX << endl;
+    exit(1);
+  }
+
+  string look_for;
+  look_for = "GE ";
+  if (str.find(look_for,0) == string::npos) {
+    cout << "Error: Input: Expected \"" << look_for << "\"" << endl;
+    cout << "  input line:"<< endl;
+    cout << str << endl;
+    exit(1);
+  }
+
+  istringstream istrm(str.substr(look_for.length()));
+  unsigned int gpflag;
+  istrm >> gpflag;
+  if (istrm.fail()) {
+    cout << "Error: Input: Could not read gpflag (unsigned int).";
+    cout << "  input line:"<< endl;
+    cout << " \"" << str << "\"" << endl;
+    exit(1);
+  }
+  if (gpflag != 0) {
+    cout << "Error: Input: ground plane not implemented.";
+    cout << "  input line:"<< endl;
+    cout << " \"" << str << "\"" << endl;
+    cout << "  integer following GE should be 0" << endl;
+    exit(1);
+  }
+
+  // read dipole excitation and sizes, expect "EX" keyword
+  //
+  done = false;
+  bool source_assigned = false;
+  do {
+
+    getNECLine(inFile, str);
+
+    look_for = "EX ";
+    if (str.find(look_for,0) != string::npos) {
+
+      istrm.str(str.substr(look_for.length()));
+
+      unsigned int exc_type;
+      istrm >> exc_type;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read excitation type (unsigned int).";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      if (exc_type != 0) {
+        cout << "Error: Input: only voltage source excitation implemented.";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        cout << "  integer following EX should be 0" << endl;
+      }
+
+      unsigned int tag_number;
+      istrm >> tag_number;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read tag number of the EX wire";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      if (tag_number == 0) {
+        cout << "Error: No absolute segment numbering implemented.";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        cout << "  tag number should not be 0" << endl;
+        exit(1);
+      }
+
+      unsigned int segment_number;
+      istrm >> segment_number;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read segment number of the EX";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      if (segment_number != nsub + 1) {
+        cout << "Error: Input: voltage source must be at center segment."
+             << endl;
+        cout << "  found: " << segment_number << endl;
+        cout << "  should be: " << nsub+1 << endl;
+        cout << "  input line:" << endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      unsigned int i4;
+      istrm >> i4;
+      if (istrm.fail()) {
+        cout << "Error: Input: expected integer I4 field in EX";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      if (i4 != 0) {
+        cout << "Error: Input: I4 field in EX should be 0";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+
+      my_float f1, f2, f3, f4, f5, f6;
+      istrm >> f1 >> f2 >> f3 >> f4 >> f5 >> f6;      
+      if (istrm.fail()) {
+        cout << "Error: Input: failed to read f1-f6 fields in EX";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+
+      // loop over all segments looking for this tag number, set gap
+      // width and voltage
+      for(unsigned int cnt=0; cnt<ndip; ++cnt) {
+        if (tag[cnt] == tag_number) {
+          v[cnt].real() = f1;
+          v[cnt].imag() = f2;
+          hgap[cnt] = f6/2;
+          source_assigned = true;
+        }
+      }
+    }
+    else {
+      done = true;
+    }
+  } while (!done);
+
+  if (source_assigned == false) {
+    cout << "Error: no voltage source specified." << endl;
+    exit(1);
+  } else {
+    cout << "Note: \"gap\" width for voltage source is the last field of EX"
+         << endl
+         << "  i.e. I1, I2, I3, I4, F1, F2 of the EX line are relevant"
+         << endl
+         << "  moreover, F6 means the width of the excitation \"gap\"."
+         << endl;
+  }
+
+  // print dipoles
+  //
+  cout << "ndip: " << ndip << "  nsub: " << nsub <<
+    "  ngaux: " << ngaux << "  ngaufi: " << ngaufi << endl;
+  cout << " num  hl     posy    posz      ar        hgap      v.re   v.im"
+       << endl;
+  for (unsigned int i = 0; i < ndip; i++) {
+    cout << fixed;
+    cout << setw(3) << i + 1;
+    cout << fixed;
+    cout.precision(4);
+    cout << " " << setw(3) << hl[i];
+    cout.precision(4);
+    cout << " " << setw(7) << posy[i] << " " <<  setw(7) << posz[i];
+    cout << scientific;
+    cout << " " << setw(7) << ar[i] << " " << hgap[i];
+    cout << fixed;
+    cout.precision(2);
+    cout << " " << setw(6) << v[i].real();
+    cout << " " << setw(6) << v[i].imag() << endl;
+  }
+  cout << scientific;
+
+  // read scaling
+  //
+  // if (!inFile.eof()) {
+  //   getTheLine(inFile, str);
+    
+  //   string look_for = "scaling ";
+  //   if (str.find(look_for, 0) != string::npos) {
+  //     istringstream istrm(str.substr(look_for.length()));
+
+  //     istrm >> numfreq >> freqd >> freqh;
+  //     if (istrm.fail()) {
+  //       cout << "Error: Input: could not read scaling numfreq,freqd,freqh from"
+  //            << endl;
+  //       cout << " from this string: \"" << str << "\"" << endl;
+  //       exit(1);
+  //     }
+  //     cout << "Scaling numfreq: " << numfreq;
+  //     if (numfreq >  NUMFREQMAX) {
+  //       cout << endl;
+  //       cout << "Error: number of scaling frequencies is larger than max (";
+  //       cout << NUMFREQMAX << ")" << endl;
+  //       exit(1);
+  //     }
+  //     cout << " low: " << freqd << " hi: " << freqh << endl;
+  //     scaling = true;
+      
+  //   }
+  //   else {
+  //     scaling = false;
+  //   }
+  // }
+
+  // while (getTheLine(inFile, str)) {
+  //   if (str.find("linear gain", 0) != string::npos) {
+  //     linear_gain = true;
+  //   }
+  //   else if (str.find("file", 0) != string::npos) {
+  //     if (str.find("amplit") != string::npos) {
+  //       f_amplit = true;
+  //     }
+  //     if (str.find("inimp") != string::npos) {
+  //       f_inimp = true;
+  //     }
+  //     if (str.find("power") != string::npos) {
+  //       f_power = true;
+  //     }
+  //     if (str.find("direct") != string::npos) {
+  //       f_direct = true;
+  //     }
+  //   }
+  //   else if (str.find("screen", 0) != string::npos) {
+  //     if (str.find("amplit") != string::npos) {
+  //       s_amplit = true;
+  //     }
+  //     if (str.find("inimp") != string::npos) {
+  //       s_inimp = true;
+  //     }
+  //     if (str.find("power") != string::npos) {
+  //       s_power = true;
+  //     }
+  //     if (str.find("direct") != string::npos) {
+  //       s_direct = true;
+  //     }
+  //   }
+  //   else if (str.find("window", 0) != string::npos) {
+  //     if (str.find("distrib") != string::npos) {
+  //       w_distrib = true;
+  //     }
+  //     if (str.find("direct") != string::npos) {
+  //       w_direct = true;
+  //     }
+  //   }
+  //   else {
+  //     cout << "Error: Input: unexpected input: " << endl;
+  //     cout << " \"" << str << endl;
+  //     cout << " expected: linear gain, file, screen or window" << endl;
+  //     exit(1);
+  //   }
+  // }
 
   inFile.close();
 
@@ -1653,7 +2088,19 @@ var gmin, gmax, fbmin, fbmax, pbdx, x, y: single;
 /*****************************************************************************/
 int main (int argc, char* argv[]) {
 
-  input(argc, argv);
+  if (argc == 1) {
+    cout << "Error: Missing command line argument (input file name) !" << endl;
+    exit(1);
+  }
+
+  string arg = argv[1];
+  cout << "agv1" << arg << endl;
+  string look_for = "nec";
+  if (arg.find(look_for) != string::npos) {
+    inputNEC(argc, argv);
+  } else {
+    input(argc, argv);
+  }
   if (!scaling) {
     // new(pfc);
     plasyd();
