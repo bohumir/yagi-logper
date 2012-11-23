@@ -323,10 +323,10 @@ void input(const int argc, char* argv[] ) {
   }
   cout << scientific;
 
+  scaling = false;
   while (getTheLine(inFile, str)) {
 
     look_for = "scaling ";
-    scaling = false;
     if (str.find(look_for,0) != string::npos) {
 
       istringstream istrm(str.substr(look_for.length()));
