@@ -323,13 +323,12 @@ void input(const int argc, char* argv[] ) {
   }
   cout << scientific;
 
-  // read scaling
-  //
-  if (!inFile.eof()) {
-    getTheLine(inFile, str);
-    
-    string look_for = "scaling ";
-    if (str.find(look_for, 0) != string::npos) {
+  while (getTheLine(inFile, str)) {
+
+    look_for = "scaling ";
+    scaling = false;
+    if (str.find(look_for,0) != string::npos) {
+
       istringstream istrm(str.substr(look_for.length()));
 
       istrm >> numfreq >> freqd >> freqh;
@@ -350,13 +349,7 @@ void input(const int argc, char* argv[] ) {
       scaling = true;
       
     }
-    else {
-      scaling = false;
-    }
-  }
-
-  while (getTheLine(inFile, str)) {
-    if (str.find("linear gain", 0) != string::npos) {
+    else if (str.find("linear gain", 0) != string::npos) {
       linear_gain = true;
     }
     else if (str.find("file", 0) != string::npos) {
