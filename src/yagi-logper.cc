@@ -5,7 +5,7 @@
 
    finds precise gain, directivity and input impedance of Yagi or
    log-periodic antennas (planar symmetric array of cylindrical
-   dipoles, many driven elements) for a range of specified
+   dipoles, possibly multiple driven elements) for a range of specified
    frequencies, integrates 2D for segments on the same element, moment
    method
 
@@ -1974,6 +1974,42 @@ void get_clock(char* argv[], int freq_cnt) {
     }
   }
 
+  if (s_direct) {
+
+    for (short int pom = 0; pom < 2; ++pom) {
+
+      cout << endl;
+      if (linear_gain) {
+        cout << "angle [deg]  gain [] (linear) ";
+      }
+      else {
+        cout << "angle [deg]  gain [dBi] (logarithmic) ";
+      }
+      if (pom == 0) {
+        cout << "in the E plane" << endl;
+      }
+      else {
+        cout << "in the H plane" << endl;
+      }
+
+      for (unsigned int i = 0; i < np; ++i) {
+
+        theta = i*delth;
+        my_float d = clocks_array[pom][freq_cnt][i];
+
+        cout << fixed << setprecision(1);
+        cout << setw(5) << theta;
+        if (linear_gain) {
+          cout << setprecision(6) << setw(11) << d
+               << endl;
+        }
+        else {
+          cout << setprecision(6) << setw(10) << " " << 10*log(d)/log(10)
+               << endl;
+        }
+      }
+    }
+  }
 } /* get_clock */
 
 #ifdef _WIN32
