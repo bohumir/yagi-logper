@@ -749,89 +749,9 @@ void inputNEC(const int argc, char* argv[] ) {
   }
   cout << scientific;
 
-  // read scaling
-  //
-  // if (!inFile.eof()) {
-  //   getTheLine(inFile, str);
-    
-  //   string look_for = "scaling ";
-  //   if (str.find(look_for, 0) != string::npos) {
-  //     istringstream istrm(str.substr(look_for.length()));
-
-  //     istrm >> numfreq >> freqd >> freqh;
-  //     if (istrm.fail()) {
-  //       cout << "Error: Input: could not read scaling numfreq,freqd,freqh from"
-  //            << endl;
-  //       cout << " from this string: \"" << str << "\"" << endl;
-  //       exit(1);
-  //     }
-  //     cout << "Scaling numfreq: " << numfreq;
-  //     if (numfreq >  NUMFREQMAX) {
-  //       cout << endl;
-  //       cout << "Error: number of scaling frequencies is larger than max (";
-  //       cout << NUMFREQMAX << ")" << endl;
-  //       exit(1);
-  //     }
-  //     cout << " low: " << freqd << " hi: " << freqh << endl;
-  //     scaling = true;
-      
-  //   }
-  //   else {
-  //     scaling = false;
-  //   }
-  // }
-
-  // while (getTheLine(inFile, str)) {
-  //   if (str.find("linear gain", 0) != string::npos) {
-  //     linear_gain = true;
-  //   }
-  //   else if (str.find("file", 0) != string::npos) {
-  //     if (str.find("amplit") != string::npos) {
-  //       f_amplit = true;
-  //     }
-  //     if (str.find("inimp") != string::npos) {
-  //       f_inimp = true;
-  //     }
-  //     if (str.find("power") != string::npos) {
-  //       f_power = true;
-  //     }
-  //     if (str.find("direct") != string::npos) {
-  //       f_direct = true;
-  //     }
-  //   }
-  //   else if (str.find("screen", 0) != string::npos) {
-  //     if (str.find("amplit") != string::npos) {
-  //       s_amplit = true;
-  //     }
-  //     if (str.find("inimp") != string::npos) {
-  //       s_inimp = true;
-  //     }
-  //     if (str.find("power") != string::npos) {
-  //       s_power = true;
-  //     }
-  //     if (str.find("direct") != string::npos) {
-  //       s_direct = true;
-  //     }
-  //   }
-  //   else if (str.find("window", 0) != string::npos) {
-  //     if (str.find("distrib") != string::npos) {
-  //       w_distrib = true;
-  //     }
-  //     if (str.find("direct") != string::npos) {
-  //       w_direct = true;
-  //     }
-  //   }
-  //   else {
-  //     cout << "Error: Input: unexpected input: " << endl;
-  //     cout << " \"" << str << endl;
-  //     cout << " expected: linear gain, file, screen or window" << endl;
-  //     exit(1);
-  //   }
-  // }
-
   inFile.close();
 
-} /* input */
+} /* inputNEC */
 
 
 /*****************************************************************************/
