@@ -1696,12 +1696,12 @@ void polar(my_float fi, float* hodndir,
 
 namespace gc_names {
   const int STEP = 1;
-  my_float theta,thetamax,fi,delth,d;
+  my_float thetamax,delth,d;
   unsigned int np ,i;
   short int pom;
 }
 
-void direct() {
+void direct(my_float theta, my_float fi) {
   using namespace gc_names;
 
   my_complex c,ck;
@@ -1767,6 +1767,8 @@ void get_clock(char* argv[], int freq_cnt) {
 
   using namespace gc_names;
 
+  my_float theta, fi;
+
   fi = 0;
   np = 360 / STEP + 1;
   delth = 360 / (np-1);
@@ -1776,7 +1778,7 @@ void get_clock(char* argv[], int freq_cnt) {
     for (unsigned int i = 0; i < np; ++i) {
 
       theta = i*delth;
-      direct();
+      direct(theta, fi);
 
       clocks_array[pom][freq_cnt][i] = d;
 
@@ -2043,7 +2045,6 @@ int main (int argc, char* argv[]) {
   }
 
   string arg = argv[1];
-  cout << "agv1" << arg << endl;
   string look_for = "nec";
   if (arg.find(look_for) != string::npos) {
     inputNEC(argc, argv);
