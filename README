@@ -10,3 +10,15 @@ On Windows (tested with mingw C++ compiler):
   g++ yagi-logper.cc
   cd ..
   src/a.exe input/D12K6
+
+To visualize with Antennavis, replace nec2 with yagi-logper
+
+  NOTE: Found a bug in Antennavis, sent to Nanakos Chrysostomos, not fixed yet:
+    Following three lines, in PlotPoint() function, VisField.c are wrong:
+      glRotatef(azimuth, 0.0, 1.0, 0.0);
+      glRotatef(elevation, 1.0, 0.0, 0.0);
+      glTranslatef(0.0, 0.0, dist * POINT_DIST_SCALE);
+    They should be replaced by:
+      glRotatef(elevation, 0.0, 1.0, 0.0);
+      glRotatef(azimuth, 0.0, 0.0, -1.0);
+      glTranslatef(0.0, dist * POINT_DIST_SCALE, 0.0);
