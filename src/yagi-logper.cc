@@ -50,7 +50,7 @@ namespace global_names {
   my_float ar[NDIPMAX],dxk[NDIPMAX];
   unsigned int tag[NDIPMAX];
   my_complex v[NDIPMAX];
-  my_float lambda;
+  my_float lambda, gs_scale;
 
   unsigned int numfreq,freq_cnt,pordip;
   my_float freqd,freqh,deltafreq;
@@ -82,6 +82,10 @@ namespace global_names {
   unsigned int getmaxy =  768;
   unsigned int nplotx = 4;
   unsigned int nploty = 3;
+
+  bool outputnec(false);
+  my_float theta0 = 0, fi0 = 0, thetad = 5, fid = 5;
+  unsigned int thetan = 73, fin = 37;
 
 #ifdef _WIN32
 #else
@@ -211,7 +215,6 @@ void input(const int argc, char* argv[] ) {
   string str;
   getTheLine(inFile, str);
   string look_for = "frequency ";
-  cout << str;
   if (str.find(look_for, 0) != string::npos) {
     my_float freq;
     if (!str2mf(str.substr(look_for.length()), freq)) {
@@ -410,13 +413,10 @@ void inputNEC(const int argc, char* argv[] ) {
     exit(1);
   }
 
-  cout << "Reading input file \"" << argv[1] << "\" ..." << endl;
+  cout << "yagi-logper: Reading input file \"" << argv[1] << "\" ..." << endl;
 
-  // //find if the frequency is specified first
-  // for now, all dimensions are assumed to be in terms of lambda
-  //
+  // first assuming dimensions in Lambda (before FR is found in the input file)
   lambda = 1;
-  cout << " Assuming dimensions in Lambda (frequency not specified)" << endl;
 
   string str;
 
@@ -555,8 +555,8 @@ void inputNEC(const int argc, char* argv[] ) {
       
       //      hl[ndip] = length_mm/2/lambda;
       hl[ndip] = (posy_mm-centy)/lambda;
-      posy[ndip] = posz_mm/lambda;
-      posz[ndip] = posx_mm/lambda;
+      posz[ndip] = -posz_mm/lambda;
+      posy[ndip] = posx_mm/lambda;
       //      ar[ndip] = dia_mm/2/lambda;
       ar[ndip] = dia_mm/lambda; // nec2 expects radius
       hgap[ndip] = 0; ////gap_mm/2/lambda;
@@ -582,42 +582,155 @@ void inputNEC(const int argc, char* argv[] ) {
 
   string look_for;
   look_for = "GE ";
-  if (str.find(look_for,0) == string::npos) {
-    cout << "Error: Input: Expected \"" << look_for << "\"" << endl;
-    cout << "  input line:"<< endl;
-    cout << str << endl;
-    exit(1);
-  }
+  done = false;
+  gs_scale = 1;
+  while (!done) {
+    look_for = "GE ";
+    if (str.find(look_for,0) != string::npos) {
+      istringstream istrm(str.substr(look_for.length()));
+      unsigned int gpflag;
+      istrm >> gpflag;
+      if (istrm.fail()) {
+        cout << "Error: Input: Could not read gpflag (unsigned int).";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      if (gpflag != 0) {
+        cout << "Error: Input: ground plane not implemented.";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        cout << "  integer following GE should be 0" << endl;
+        exit(1);
+      }
+      done = true;
+    } else {
+      look_for = "GS ";
 
-  istringstream istrm(str.substr(look_for.length()));
-  unsigned int gpflag;
-  istrm >> gpflag;
-  if (istrm.fail()) {
-    cout << "Error: Input: Could not read gpflag (unsigned int).";
-    cout << "  input line:"<< endl;
-    cout << " \"" << str << "\"" << endl;
-    exit(1);
+      if (str.find(look_for,0) != string::npos) {
+
+        istringstream istrm(str.substr(look_for.length()));
+
+        unsigned int blank1, blank2;
+        istrm >> blank1 >> blank2;
+        if (istrm.fail()) {
+          cout << "Error: Input: could not read two blank integers in GS";
+          cout << "  input line:"<< endl;
+          cout << " \"" << str << "\"" << endl;
+          exit(1);
+        }
+
+        my_float f1;
+        istrm >> f1;
+        if (istrm.fail()) {
+          cout << "Error: Input: failed to read f1 fields in GS";
+          cout << "  input line:"<< endl;
+          cout << " \"" << str << "\"" << endl;
+          exit(1);
+        }
+
+        gs_scale = f1;
+        done = !getNECLine(inFile, str);
+      }
+      else {
+        cout << " Ignored: " << str << endl;
+        done = !getNECLine(inFile, str);
+      }
+    }
   }
-  if (gpflag != 0) {
-    cout << "Error: Input: ground plane not implemented.";
-    cout << "  input line:"<< endl;
-    cout << " \"" << str << "\"" << endl;
-    cout << "  integer following GE should be 0" << endl;
-    exit(1);
+  // get the line after GE
+  getNECLine(inFile, str);
+
+
+  // find frequency, expect "FR" keyword
+  //
+  done = false;
+  bool freq_assigned = false;
+  while (!done) {
+
+    look_for = "FR";
+
+    if (str.find(look_for,0) != string::npos) {
+
+      istringstream istrm(str.substr(look_for.length()));
+
+      double lin_mult;
+      istrm >> lin_mult;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read IFRQ (unsigned int) in FR line."
+             << endl;
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      if (lin_mult != 0) {
+        cout << "Error: Input: not even linear freq changes implemented."
+             << endl;
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        cout << "  integer following FR (IFRQ) should be 0" << endl;
+      }
+
+      unsigned int num_freq;
+      istrm >> num_freq;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read NFRQ in FR line";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      if (num_freq != 1) {
+        cout << "Error: Only one frequency allowed for now.";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        cout << "  NFRQ should not be 1" << endl;
+      }
+
+      unsigned int blank1, blank2;
+      istrm >> blank1 >> blank2;
+      if (istrm.fail()) {
+        cout << "Error: Input: could not read two blank integers in FR";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+
+      my_float f1, f2, f3, f4, f5, f6;
+      istrm >> f1 >> f2 >> f3 >> f4 >> f5 >> f6;      
+      if (istrm.fail()) {
+        cout << "Error: Input: failed to read f1-f6 fields in FR";
+        cout << "  input line:"<< endl;
+        cout << " \"" << str << "\"" << endl;
+        exit(1);
+      }
+      my_float freq = f1;
+      cout << "Frequency : " << freq << " MHz" << endl;
+      lambda = 299.8/freq;  // lambda in the untis of m
+      freq_assigned = true;
+      done =  !getNECLine(inFile, str);
+    } else {
+
+      look_for = "EX";
+      if (str.find(look_for,0) != string::npos) {
+        //        cout << "found ex" << endl << str << endl ;
+        done = true;
+      }
+      else {
+        done = !getNECLine(inFile, str);
+      }
+    }
   }
 
   // read dipole excitation and sizes, expect "EX" keyword
   //
   done = false;
   bool source_assigned = false;
-  do {
+  while (!done) {
 
-    getNECLine(inFile, str);
-
-    look_for = "EX ";
+    look_for = "EX";
     if (str.find(look_for,0) != string::npos) {
 
-      istrm.str(str.substr(look_for.length()));
+      istringstream istrm(str.substr(look_for.length()));
 
       unsigned int exc_type;
       istrm >> exc_type;
@@ -632,6 +745,7 @@ void inputNEC(const int argc, char* argv[] ) {
         cout << "  input line:"<< endl;
         cout << " \"" << str << "\"" << endl;
         cout << "  integer following EX should be 0" << endl;
+        exit(1);
       }
 
       unsigned int tag_number;
@@ -697,26 +811,47 @@ void inputNEC(const int argc, char* argv[] ) {
         if (tag[cnt] == tag_number) {
           v[cnt].real() = f1;
           v[cnt].imag() = f2;
+          if (f6 == 0) {
+            f6 = 2e-3;
+          }
           hgap[cnt] = f6/2;
           source_assigned = true;
+          cout << " Excitation gap set to " << f6
+               << " (unscaled) on dipole num " << cnt+1 << " (tag " << tag_number << ")"
+               << endl;
         }
       }
     }
     else {
-      done = true;
+      cout << " Ignored: " << str << endl;
     }
+    done = !getNECLine(inFile, str);
   } while (!done);
 
+  if (freq_assigned == false) {
+    cout << "Assuming dimensions in Lambda (FR not found in the input file)"
+         << endl;
+  }
+
   if (source_assigned == false) {
-    cout << "Error: no voltage source specified." << endl;
+    cout << "Error: missing voltage source (EX line)." << endl;
     exit(1);
   } else {
-    cout << "Note: \"gap\" width for voltage source is the last field of EX"
+    cout << "Note:" << endl
+         << "  \"gap\" width for voltage source is the last field of EX"
          << endl
-         << "  i.e. I1, I2, I3, I4, F1, F2 of the EX line are relevant"
+         << "  i.e. I1, I2, I3, I4, F1, F2 of the EX line are relevant, and"
          << endl
-         << "  moreover, F6 means the width of the excitation \"gap\"."
+         << "  F6 is the width of the excitation \"gap\". If 0, set to 2 mm."
          << endl;
+  }
+
+  for (unsigned int i = 0; i < ndip; i++) {
+    hl[i] = hl[i]*gs_scale/lambda;
+    posz[i] = posz[i]*gs_scale/lambda;
+    posy[i] = posy[i]*gs_scale/lambda;
+    ar[i] = ar[i]*gs_scale/lambda;
+    hgap[i] = hgap[i]*gs_scale/lambda;
   }
 
   // print dipoles
@@ -1589,7 +1724,7 @@ void pabs() { /* powers */
 #ifdef _WIN32
 #else
 /*****************************************************************************/
-void polar(my_float fi, float* hodndir,
+void polar(int eh, float* hodndir,
            unsigned int xs, unsigned int ys, unsigned int r, my_float dmax) {
 
   const int NKRU = 5;
@@ -1612,7 +1747,7 @@ void polar(my_float fi, float* hodndir,
   st = float2string(10.*log(dmax)/log(10));
   outtextxy(xs-r,ys-r,"Max. gain: "+st+"dB");
 
-  if (fi == 0) {
+  if (eh == 0) {
     outtextxy(xs-r,ys-r+10,"E-plane");
   }
   else {
@@ -1671,7 +1806,11 @@ void polar(my_float fi, float* hodndir,
   }
 
   for (alfa = 0; alfa <= 360; ++alfa) {
-    alfar = alfa/180.*PI;
+    int rot = 0;
+    if (outputnec) {
+      rot = 90;
+    }
+    alfar = (alfa-rot)/180.*PI;
     if (linear_gain) {
       rm = hodndir[alfa]/dmax;
     }
@@ -1769,7 +1908,6 @@ void get_clock(char* argv[], int freq_cnt) {
 
   my_float theta, fi;
 
-  fi = 0;
   np = 360 / STEP + 1;
   delth = 360 / (np-1);
 
@@ -1777,7 +1915,19 @@ void get_clock(char* argv[], int freq_cnt) {
     dmax = 0;
     for (unsigned int i = 0; i < np; ++i) {
 
-      theta = i*delth;
+      if (outputnec && (pom==0)) {
+        theta = 90;
+        fi = i*delth;
+      } else {
+        theta = i*delth;
+        if (pom==0) {
+          fi = 0;
+        }
+        else {
+          fi = 90;
+        }
+      }
+      
       direct(theta, fi);
 
       clocks_array[pom][freq_cnt][i] = d;
@@ -1811,7 +1961,7 @@ void get_clock(char* argv[], int freq_cnt) {
             //cout << e.type << endl;
             if ((e.type == Expose) && e.xexpose.count == 0) {
               //cout << getmaxx / 4;
-              polar(fi,clocks_array[pom][0],
+              polar(pom,clocks_array[pom][0],
                     getmaxx / 2,
                     getmaxy / 2,
                     static_cast<int>(round(getmaxy/2.)),
@@ -1925,6 +2075,67 @@ void get_clock(char* argv[], int freq_cnt) {
       }
     }
   }
+
+  if (outputnec) {
+
+    // allocate and calculate radiation pattern
+    my_float** array;
+    array = new my_float* [thetan];
+    for (unsigned int tc = 0; tc < thetan; ++tc) {
+      array[tc] = new my_float [fin];
+      theta = theta0 + tc*thetad;
+      for (unsigned int fc = 0; fc < fin; ++fc) {
+        fi = fi0 + fc*fid;
+        direct(theta, fi);
+        array[tc][fc] = d;
+      }
+    }
+
+    // write in the output.nec file
+    ofstream outFile("output.nec");
+    outFile << "RADIATION PATTERNS" << endl;
+    my_float gain, mthetam90;
+    //    for (unsigned int tc = thetan; tc > 0; --tc) {
+    //      theta = theta0 + (tc-1)*thetad;
+    for (unsigned int tc = 0; tc < thetan; ++tc) {
+      theta = theta0 + tc*thetad;
+      if (theta<0) {
+        theta = theta + 360;
+      }
+      mthetam90 = -theta  + 360;
+      if (mthetam90 < -180) {
+        mthetam90 = mthetam90+360;
+      }
+      else if (mthetam90 > 180) {
+        mthetam90 = mthetam90-360;
+      }
+      for (unsigned int fc = 0; fc < fin; ++fc) {
+        fi = fi0 + fc*fid;
+        my_float fim=fi-90;
+        if (fim<0) {
+          //          fim = fim + 360;
+        }
+        if (linear_gain) {
+          //          gain = array[(tc-1)][fc];
+          gain = array[tc][fc];
+        }
+        else {
+          //          gain = 10*log(array[(tc-1)][fc])/log(10);
+          gain = 10*log(array[tc][fc])/log(10);
+        }
+        //        outFile << mthetam90 << " " << fi+90 << " 0 0 " << gain << endl;
+        outFile << theta << " " << fim << " 0 0 " << gain << endl;
+      }
+    }
+    outFile << endl << endl;
+    outFile.close();
+
+    // free memory
+    for (unsigned int tc = 0; tc < thetan; ++tc) {
+      delete [] array[tc];
+    }
+    delete [] array;
+  }
 } /* get_clock */
 
 #ifdef _WIN32
@@ -1966,7 +2177,7 @@ void manyplots() {
             for (i = 0; i < nploty; ++i) {
               for (j = 0; j < nplotx; ++j) {
                 if (freq_cnt < numfreq) {
-                  polar(k*90, clocks_array[k][freq_cnt],
+                  polar(k, clocks_array[k][freq_cnt],
                         2*j*r + r, 2*i*r + r, r,
                         pdmax[k][freq_cnt]);
                 }
@@ -2048,6 +2259,10 @@ int main (int argc, char* argv[]) {
   string look_for = "nec";
   if (arg.find(look_for) != string::npos) {
     inputNEC(argc, argv);
+    outputnec = true;
+    s_amplit = true;
+    s_inimp = true;
+    s_power = true;
   } else {
     input(argc, argv);
   }
