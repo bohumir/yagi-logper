@@ -11,5 +11,10 @@ On Windows (tested with mingw C++ compiler):
   cd ..
   src/a.exe input/D12K6
 
-To visualize with Antennavis, replace nec2 with yagi-logper
+To visualize radiation pattern with Antennavis on UNIX:
 
+  ln -s $PWD/yagi-logper ~/bin/nec2
+  cd ../input
+  antennavis
+    -> click "Load Antenna file", select a .nec file
+    -> click "Compute RF Field", press q twice
