@@ -157,7 +157,7 @@ bool getTheLine(ifstream& is, string& str) {
 
   bool success, comment, empty;
   do {
-    success = getline(is, str);
+    success = getline(is, str).good();
     comment = ((str.length() >= 1) && (str[0] == '#'));
     empty = (str == "");
     //    cout << "***********" << str << endl;
@@ -169,7 +169,7 @@ bool getNECLine(ifstream& is, string& str) {
 
   bool success, comment, empty;
   do {
-    success = getline(is, str);
+    success = getline(is, str).good();
     comment = (str.length() >= 2) && ((str.substr(0,2) == "CM")||(str.substr(0,2) == "CE"));
 
     empty = (str == "");
@@ -285,12 +285,14 @@ void input(const int argc, char* argv[] ) {
   //
   for (unsigned int i = 0; i < ndip; i++) {
     getTheLine(inFile, str);
-    istringstream istrm2(str);
+    stringstream istrm2(str);
 
     my_float length_mm, posy_mm, posz_mm, diam_mm, gap_mm;
+    my_float re, im;
     
     istrm2 >> length_mm >> posy_mm >> posz_mm >> diam_mm >> gap_mm;
-    istrm2 >> v[i].real() >> v[i].imag();
+    istrm2 >> re >> im;
+    v[i] = {re, im};
     if (istrm2.fail()) {
       cout << "Error: Input: could not read dipole # " << i+1 << endl;
       exit(1);
@@ -809,8 +811,7 @@ void inputNEC(const int argc, char* argv[] ) {
       // width and voltage
       for(unsigned int cnt=0; cnt<ndip; ++cnt) {
         if (tag[cnt] == tag_number) {
-          v[cnt].real() = f1;
-          v[cnt].imag() = f2;
+          v[cnt] = {f1, f2};
           if (f6 == 0) {
             f6 = 2e-3;
           }
@@ -991,8 +992,7 @@ void f00(int i) {
   using namespace samdip_names;
   my_float x,xx,a,b,r;
 
-  res.real() = 0;
-  res.imag() = 0;
+  res = {0, 0};
   x = pgauss[0][i];
   xx = x*x;
   a = sin(fik*(1-x))/sfik;
@@ -1003,8 +1003,8 @@ void f00(int i) {
     t = fik*r;
     if (t>1E-6) {
       s = 1/r;
-      res.real() = res.real()+(a*s*cos(t)-b*s)*wgauss[1][j];
-      res.imag() = res.imag()+(-a*s*sin(t)+b*fik)*wgauss[1][j];
+      res.real(res.real()+(a*s*cos(t)-b*s)*wgauss[1][j]);
+      res.imag(res.imag()+(-a*s*sin(t)+b*fik)*wgauss[1][j]);
     }
   }
 } /* f00 */
@@ -1014,8 +1014,7 @@ void f01a(int i) {
   using namespace samdip_names;
   my_float x,xx,a,r,t;
 
-  res.real() = 0;
-  res.imag() = 0;
+  res = {0, 0};
   x = pgauss[0][i];
   xx = (x+1)*(x+1);
   a = sin(fik*(1-x))/sfik;
@@ -1023,11 +1022,10 @@ void f01a(int i) {
     s = alfak*pgauss[1][j];
     r = sqrt(xx+s*s);
     t = fik*r;
-    res.real() = res.real()+cos(t)*wgauss[1][j]/r;
-    res.imag() = res.imag()-sin(t)*wgauss[1][j]/r;
+    res.real(res.real()+cos(t)*wgauss[1][j]/r);
+    res.imag(res.imag()-sin(t)*wgauss[1][j]/r);
   };
-  res.real() = res.real()*a;
-  res.imag() = res.imag()*a;
+  res = res*a;
 } /* f01a */
 
 void f01b(int i) {
@@ -1035,8 +1033,7 @@ void f01b(int i) {
   using namespace samdip_names;
   my_float x,xx,a,b,r,t;
 
-  res.real() = 0;
-  res.imag() = 0;
+  res = {0, 0};
   x = pgauss[0][i];
   xx = x*x;
   b = fik*x;
@@ -1047,8 +1044,8 @@ void f01b(int i) {
     r = sqrt(xx+s*s);
     t = fik*r;
     if (t>1E-6) {
-      res.real() = res.real()+(a*cos(t)-b)*wgauss[1][j]/r;
-      res.imag() = res.imag()+(-a*sin(t)+b*t)*wgauss[1][j]/r;
+      res.real(res.real()+(a*cos(t)-b)*wgauss[1][j]/r);
+      res.imag(res.imag()+(-a*sin(t)+b*t)*wgauss[1][j]/r);
     }
   }
 } /* f01b */
@@ -1059,8 +1056,7 @@ void f0n(int i) {
 
   my_float x,xxm,xxp,a,s,s2,rp,rm,tp,tm;
 
-  res.real() = 0;
-  res.imag() = 0;
+  res = {0, 0};
   x = pgauss[0][i];
   xxm = (x-q)*(x-q);
   xxp = (x+q)*(x+q);
@@ -1072,11 +1068,10 @@ void f0n(int i) {
     rm = sqrt(xxm+s2);
     tp = fik*rp;
     tm = fik*rm;
-    res.real() = res.real()+( cos(tp)/rp +cos(tm)/rm )*wgauss[1][j];
-    res.imag() = res.imag()+(-sin(tp)/rp -sin(tm)/rm )*wgauss[1][j];
+    res.real(res.real()+( cos(tp)/rp +cos(tm)/rm )*wgauss[1][j]);
+    res.imag(res.imag()+(-sin(tp)/rp -sin(tm)/rm )*wgauss[1][j]);
   }
-  res.real() = res.real()*a;
-  res.imag() = res.imag()*a;
+  res = res*a;
 } /* f0n */
 
 /*****************************************************************************/
@@ -1107,55 +1102,51 @@ void samdip(unsigned int k) {
   q = fik*cos(fik)/sin(fik);
   s = log(2/alfak) + bls - q*bs;
   t = fik*(q/2 - 1);
-  p.real() = s;
-  p.imag() = t;
+  p = {s, t};
   c = p;
 
   /* dqg(@f00,c); */
   for (unsigned int i = 0; i < ngau1; ++i) {
     f00(i);
-    c.real() = c.real()+wgauss[0][i]*res.real();
-    c.imag() = c.imag()+wgauss[0][i]*res.imag();
+    c.real(c.real()+wgauss[0][i]*res.real());
+    c.imag(c.imag()+wgauss[0][i]*res.imag());
   };
-  pw[0].real() = 2*c.real();
-  pw[0].imag() = 2*c.imag();
+  pw[0] = 2.0*c;
+
   /* coupling between neigbour exp.f. */
-  p.real() = bs*fik/sfik;
-  p.imag() = -fik/2*fik/sfik;
+  p.real(bs*fik/sfik);
+  p.imag(-fik/2*fik/sfik);
 
   /* dqg(@f01a,c); */
   my_complex c;
-  c.real() = 0;
-  c.imag() = 0;
+  c = {0, 0};
   for (unsigned int i = 0; i < ngau1; ++i) {
       f01a(i);
-      c.real() = c.real()+wgauss[0][i]*res.real();
-      c.imag() = c.imag()+wgauss[0][i]*res.imag();
+      c.real(c.real()+wgauss[0][i]*res.real());
+      c.imag(c.imag()+wgauss[0][i]*res.imag());
   }
 
   /* dqg(@f01b,cc); */
   cc = p;
   for (unsigned int i = 0; i < ngau1; ++i) {
       f01b(i);
-      cc.real() = cc.real()+wgauss[0][i]*res.real();
-      cc.imag() = cc.imag()+wgauss[0][i]*res.imag();
+      cc.real(cc.real()+wgauss[0][i]*res.real());
+      cc.imag(cc.imag()+wgauss[0][i]*res.imag());
   }
 
-  pw[1].real() = c.real()+cc.real();
-  pw[1].imag() = c.imag()+cc.imag();
+  pw[1].real(c.real()+cc.real());
+  pw[1].imag(c.imag()+cc.imag());
 
   /* remaining coupling integrals */
   for (unsigned int n1 = 2; n1 < ns22; ++n1) {
     n = n1-1;
     q = n+1;
     /* dqg(@f0n,c); */
-    my_complex c;
-    c.real() = 0;
-    c.imag() = 0;
+    my_complex c = {0, 0};
     for (unsigned int i = 0; i < ngau1; ++i) {
       f0n(i);
-      c.real() = c.real()+wgauss[0][i]*res.real();
-      c.imag() = c.imag()+wgauss[0][i]*res.imag();
+      c.real(c.real()+wgauss[0][i]*res.real());
+      c.imag(c.imag()+wgauss[0][i]*res.imag());
     };
     pw[n1] = c;
   }
@@ -1167,8 +1158,8 @@ void samdip(unsigned int k) {
   ns21 = ns22-1;
   for (unsigned int i = 0; i < ns21; ++i) {
     z = pw[i+1];
-    pw[i].real() = x.real()+z.real()-t*y.real();
-    pw[i].imag() = x.imag()+z.imag()-t*y.imag();
+    pw[i].real(x.real()+z.real()-t*y.real());
+    pw[i].imag(x.imag()+z.imag()-t*y.imag());
     x = y;
     y = z;
   };
@@ -1177,18 +1168,18 @@ void samdip(unsigned int k) {
   i0 = k*ns1;
   for (unsigned int ii = 0; ii < ns1; ++ii) {
     int i = i0+ii;
-    pfc[i][i].real() = pw[0].real()+pw[ii+ii].real();
-    pfc[i][i].imag() = pw[0].imag()+pw[ii+ii].imag();
+    pfc[i][i].real(pw[0].real()+pw[ii+ii].real());
+    pfc[i][i].imag(pw[0].imag()+pw[ii+ii].imag());
   }
 
   for (unsigned int ii = 0; ii < nsub; ++ii) {
     int i = i0+ii+1;
     for (jj = 0; jj <= ii; ++jj) {
       j = i0+jj;
-      pfc[i][j].real() = pw[ii-jj+1].real()+pw[ii+jj+1].real();
-      pfc[i][j].imag() = pw[ii-jj+1].imag()+pw[ii+jj+1].imag();
-      pfc[j][i].real() = pfc[i][j].real();
-      pfc[j][i].imag() = pfc[i][j].imag();
+      pfc[i][j].real(pw[ii-jj+1].real()+pw[ii+jj+1].real());
+      pfc[i][j].imag(pw[ii-jj+1].imag()+pw[ii+jj+1].imag());
+      pfc[j][i].real(pfc[i][j].real());
+      pfc[j][i].imag(pfc[i][j].imag());
     }
   }
   // dispose(pw);
@@ -1219,10 +1210,10 @@ void edif4(int m) {
   x2 = fi*r2;
   x3 = fi*r3;
   x4 = fi*r4;
-  res.real() = sin(fi*(1-x))*(cos(x1)/r1+cos(x2)/r2
-                              +cos(x3)/r3+cos(x4)/r4);
-  res.imag() = -sin(fi*(1-x))*(sin(x1)/r1+sin(x2)/r2
-                               +sin(x3)/r3+sin(x4)/r4);
+  res.real(sin(fi*(1-x))*(cos(x1)/r1+cos(x2)/r2
+                          +cos(x3)/r3+cos(x4)/r4));
+  res.imag(-sin(fi*(1-x))*(sin(x1)/r1+sin(x2)/r2
+                           +sin(x3)/r3+sin(x4)/r4));
 } /* edif4 */
 
 void difdip(unsigned int kk, unsigned int ll) {
@@ -1255,15 +1246,14 @@ void difdip(unsigned int kk, unsigned int ll) {
         x0 = q-del;
         x01 = q+del;
         /* dqg(edif4,c); */
-        c.real() = 0;
-        c.imag() = 0;
+        c = {0, 0};
         for (unsigned int m = 0; m < ngau1; ++m) {
           edif4(m);
-          c.real() = c.real()+wgauss[0][m]*res.real();
-          c.imag() = c.imag()+wgauss[0][m]*res.imag();
+          c.real(c.real()+wgauss[0][m]*res.real());
+          c.imag(c.imag()+wgauss[0][m]*res.imag());
         }
-        pw[i][j].real() = c.real()/sfi;
-        pw[i][j].imag() = c.imag()/sfi;
+        pw[i][j].real(c.real()/sfi);
+        pw[i][j].imag(c.imag()/sfi);
       }
     }
 
@@ -1274,8 +1264,8 @@ void difdip(unsigned int kk, unsigned int ll) {
     t = cos(dxk[k]);
     for (unsigned int jj = 0; jj < ns1; ++jj) {
       j = j0+jj;
-      pfc[i][j].real() = 2*(pw[1][jj].real()-t*pw[0][jj].real());
-      pfc[i][j].imag() = 2*(pw[1][jj].imag()-t*pw[0][jj].imag());
+      pfc[i][j].real(2*(pw[1][jj].real()-t*pw[0][jj].real()));
+      pfc[i][j].imag(2*(pw[1][jj].imag()-t*pw[0][jj].imag()));
     };
     t = 2*t;
     for (unsigned int ii = 1; ii < ns1; ++ii) {
@@ -1284,8 +1274,8 @@ void difdip(unsigned int kk, unsigned int ll) {
       iim = ii-1;
       for (unsigned int jj = 0; jj < ns1; ++jj) {
         j = j0+jj;
-        pfc[i][j].real() = pw[iip][jj].real()+pw[iim][jj].real()-t*pw[ii][jj].real();
-        pfc[i][j].imag() = pw[iip][jj].imag()+pw[iim][jj].imag()-t*pw[ii][jj].imag();
+        pfc[i][j].real(pw[iip][jj].real()+pw[iim][jj].real()-t*pw[ii][jj].real());
+        pfc[i][j].imag(pw[iip][jj].imag()+pw[iim][jj].imag()-t*pw[ii][jj].imag());
       }
     }
 
@@ -1381,8 +1371,7 @@ void shift() {
 void cgapex() {
   using namespace cgapex_names;
   for (unsigned int i = 0; i < ndns1; ++i) {
-    right_first[i].real() = 0;
-    right_first[i].imag() = 0;
+    right_first[i] = {0, 0};
   };
   unsigned int k = 0;
   ns1 = nsub+1;
@@ -1394,15 +1383,15 @@ void cgapex() {
       lexc = k;
       fik = dxk[k];
       gk = TPI*hgap[k];
-      c.real() = v[k].imag()/gk/30;
-      c.imag() = -v[k].real()/gk/30;
+      c.real(v[k].imag()/gk/30);
+      c.imag(-v[k].real()/gk/30);
       g0k = gk;
       if (fik<gk) {
         g0k = fik;
       }
       kr = k*ns1;
-      right_first[kr].real() = 2*c.real()*sin(g0k/2)*sin(fik-g0k/2);
-      right_first[kr].imag() = 2*c.imag()*sin(g0k/2)*sin(fik-g0k/2);
+      right_first[kr].real(2*c.real()*sin(g0k/2)*sin(fik-g0k/2));
+      right_first[kr].imag(2*c.imag()*sin(g0k/2)*sin(fik-g0k/2));
       m = 0;
       x1mg = -gk;
       x2mg = x1mg+fik;
@@ -1410,24 +1399,24 @@ void cgapex() {
       while (m < nsub) {
         kr = kr+1;
         if (x3mg <= 0 ) {
-          right_first[kr].real() = right_first[kr-1].real();
-          right_first[kr].imag() = right_first[kr-1].imag();
+          right_first[kr].real(right_first[kr-1].real());
+          right_first[kr].imag(right_first[kr-1].imag());
           shift();
         }
         else {
           if (x2mg <= 0) {
-            right_first[kr].real() = right_first[kr-1].real()/2+
-              c.real()*sin(-x2mg/2)*sin((x3mg+fik)/2);
-            right_first[kr].imag() = right_first[kr-1].imag()/2+
-              c.imag()*sin(-x2mg/2)*sin((x3mg+fik)/2);
+            right_first[kr].real(right_first[kr-1].real()/2+
+                                 c.real()*sin(-x2mg/2)*sin((x3mg+fik)/2));
+            right_first[kr].imag(right_first[kr-1].imag()/2+
+                                 c.imag()*sin(-x2mg/2)*sin((x3mg+fik)/2));
             shift();
           }
           else {
             if (x1mg < 0) {
-              right_first[kr].real() = c.real()*sin(-x1mg/2)*
-                sin(-x1mg/2);
-              right_first[kr].imag() = c.imag()*sin(-x1mg/2)*
-                sin(-x1mg/2);
+              right_first[kr].real(c.real()*sin(-x1mg/2)*
+                                   sin(-x1mg/2));
+              right_first[kr].imag(c.imag()*sin(-x1mg/2)*
+                                   sin(-x1mg/2));
               shift();
             }
             else {
@@ -1454,54 +1443,53 @@ void cgauss() {
 
   for (unsigned int jz = 0; jz < ndns1; ++jz) {
     h = pfc[jz][jz].real()*pfc[jz][jz].real()+pfc[jz][jz].imag()*pfc[jz][jz].imag();
-    c.real() = (right_first[jz].real()*pfc[jz][jz].real()
-                +right_first[jz].imag()*pfc[jz][jz].imag())/h;
-    c.imag() = (right_first[jz].imag()*pfc[jz][jz].real()-
-                right_first[jz].real()*pfc[jz][jz].imag())/h;
+    c.real((right_first[jz].real()*pfc[jz][jz].real()
+            +right_first[jz].imag()*pfc[jz][jz].imag())/h);
+    c.imag((right_first[jz].imag()*pfc[jz][jz].real()-
+            right_first[jz].real()*pfc[jz][jz].imag())/h);
     right_first[jz] = c;
     for (unsigned int jh = ndns1; jh > jz; --jh) {
-      c.real() = (pfc[jz][jh-1].real()*pfc[jz][jz].real()
-                  +pfc[jz][jh-1].imag()*pfc[jz][jz].imag())/h;
-      c.imag() = (pfc[jz][jh-1].imag()*pfc[jz][jz].real()-
-                  pfc[jz][jh-1].real()*pfc[jz][jz].imag())/h;
+      c.real((pfc[jz][jh-1].real()*pfc[jz][jz].real()
+              +pfc[jz][jh-1].imag()*pfc[jz][jz].imag())/h);
+      c.imag((pfc[jz][jh-1].imag()*pfc[jz][jz].real()-
+              pfc[jz][jh-1].real()*pfc[jz][jz].imag())/h);
       pfc[jz][jh-1] = c;
     }
     for (unsigned int iz = jz+1; iz < ndns1; ++iz) {
       /* right_first[iz] = right_first[iz]-right_first[jz]*pfc[iz][jz]; */
-      right_first[iz].real() = right_first[iz].real()-right_first[jz].real()*pfc[iz][jz].real()
-        +right_first[jz].imag()*pfc[iz][jz].imag();
-      right_first[iz].imag() = right_first[iz].imag()-right_first[jz].real()*pfc[iz][jz].imag()
-        -right_first[jz].imag()*pfc[iz][jz].real();
+      right_first[iz].real(right_first[iz].real()-right_first[jz].real()*pfc[iz][jz].real()
+                           +right_first[jz].imag()*pfc[iz][jz].imag());
+      right_first[iz].imag(right_first[iz].imag()-right_first[jz].real()*pfc[iz][jz].imag()
+                           -right_first[jz].imag()*pfc[iz][jz].real());
       for (unsigned int jh = ndns1-1; jh > jz; --jh) {
-        pfc[iz][jh].real() = pfc[iz][jh].real()-pfc[jz][jh].real()*pfc[iz][jz].real()
-          +pfc[jz][jh].imag()*pfc[iz][jz].imag();
-        pfc[iz][jh].imag() = pfc[iz][jh].imag()-pfc[jz][jh].real()*pfc[iz][jz].imag()
-          -pfc[jz][jh].imag()*pfc[iz][jz].real();
+        pfc[iz][jh].real(pfc[iz][jh].real()-pfc[jz][jh].real()*pfc[iz][jz].real()
+                         +pfc[jz][jh].imag()*pfc[iz][jz].imag());
+        pfc[iz][jh].imag(pfc[iz][jh].imag()-pfc[jz][jh].real()*pfc[iz][jz].imag()
+                         -pfc[jz][jh].imag()*pfc[iz][jz].real());
       };
       unsigned int jh = jz;
-      c.real() = -pfc[jz][jh].real()*pfc[iz][jz].real()
-        +pfc[jz][jh].imag()*pfc[iz][jz].imag();
-      c.imag() = -pfc[jz][jh].real()*pfc[iz][jz].imag()
-        -pfc[jz][jh].imag()*pfc[iz][jz].real();
-      pfc[iz][jh].real() = pfc[iz][jh].real()+c.real();
-      pfc[iz][jh].imag() = pfc[iz][jh].imag()+c.imag();
+      c.real(-pfc[jz][jh].real()*pfc[iz][jz].real()
+             +pfc[jz][jh].imag()*pfc[iz][jz].imag());
+      c.imag(-pfc[jz][jh].real()*pfc[iz][jz].imag()
+             -pfc[jz][jh].imag()*pfc[iz][jz].real());
+      pfc[iz][jh].real(pfc[iz][jh].real()+c.real());
+      pfc[iz][jh].imag(pfc[iz][jh].imag()+c.imag());
     };
   };
 
   /* zero out above the diagonal */
   for (unsigned int jz = ndns1-1; jz > 0; --jz) {
-    c.real() = right_first[jz-1].real();
-    c.imag() = right_first[jz-1].imag();
+    c.real(right_first[jz-1].real());
+    c.imag(right_first[jz-1].imag());
     for (unsigned int jh = ndns1-1; jh >= jz; --jh) {
       /* c = c-right_first[jh]*pfc[jz][jh]; */
-      c.real() = c.real()-right_first[jh].real()*pfc[jz-1][jh].real()
-        +right_first[jh].imag()*pfc[jz-1][jh].imag();
-      c.imag() = c.imag()-right_first[jh].real()*pfc[jz-1][jh].imag()
-        -right_first[jh].imag()*pfc[jz-1][jh].real();
+      c.real(c.real()-right_first[jh].real()*pfc[jz-1][jh].real()
+             +right_first[jh].imag()*pfc[jz-1][jh].imag());
+      c.imag(c.imag()-right_first[jh].real()*pfc[jz-1][jh].imag()
+             -right_first[jh].imag()*pfc[jz-1][jh].real());
     };
     right_first[jz-1] = c;
-    c.real() = 0;
-    c.imag() = 0;
+    c = {0, 0};
     for (unsigned int jh = ndns1-1; jh >= jz; --jh) {
       pfc[jz-1][jh] = c;
     }
@@ -1678,10 +1666,10 @@ void inimp() {
     iz = (nsub+1)*lexc;
     pom = right_first[iz].real()*right_first[iz].real()
       +right_first[iz].imag()*right_first[iz].imag();
-    inimped.real() = (v[lexc].real()*right_first[iz].real()
-                      +v[lexc].imag()*right_first[iz].imag())/pom/2;
-    inimped.imag() = (v[lexc].imag()*right_first[iz].real()
-                      -v[lexc].real()*right_first[iz].imag())/pom/2;
+    inimped.real((v[lexc].real()*right_first[iz].real()
+                  +v[lexc].imag()*right_first[iz].imag())/pom/2);
+    inimped.imag((v[lexc].imag()*right_first[iz].real()
+                  -v[lexc].real()*right_first[iz].imag())/pom/2);
     if (s_inimp) {
       cout << endl;
       cout << "Input impedance (re): " << inimped.real() << endl;
@@ -1857,8 +1845,7 @@ void direct(my_float theta, my_float fi) {
   stcf = sth*cfi;
   ap = (1+stcf)/2;
   am = (1-stcf)/2;
-  c.real() = 0;
-  c.imag() = 0;
+  c = {0, 0};
   ns1 = nsub+1;
 
   for (unsigned int k = 0; k < ndip; ++k) {
@@ -1867,32 +1854,32 @@ void direct(my_float theta, my_float fi) {
     s = stcf*fik;
     ck = right_first[kr];
     for (unsigned int m = 1; m <= nsub; ++m) {
-      ck.real() = ck.real()+right_first[kr+m].real()*cos(m*s);
-      ck.imag() = ck.imag()+right_first[kr+m].imag()*cos(m*s);
+      ck.real(ck.real()+right_first[kr+m].real()*cos(m*s));
+      ck.imag(ck.imag()+right_first[kr+m].imag()*cos(m*s));
     }
     s = fik*ap;
     if (s<1E-4) {
-      ck.real() = ck.real()*(1-s*s/6);
-      ck.imag() = ck.imag()*(1-s*s/6);
+      ck.real(ck.real()*(1-s*s/6));
+      ck.imag(ck.imag()*(1-s*s/6));
     }
     else {
-      ck.real() = ck.real()*sin(s)/s;
-      ck.imag() = ck.imag()*sin(s)/s;
+      ck.real(ck.real()*sin(s)/s);
+      ck.imag(ck.imag()*sin(s)/s);
     };
     s = fik*am;
     if (s<1E-4) {
-      ck.real() = ck.real()*(1-s*s/6);
-      ck.imag() = ck.imag()*(1-s*s/6);
+      ck.real(ck.real()*(1-s*s/6));
+      ck.imag(ck.imag()*(1-s*s/6));
     }
     else {
-      ck.real() = ck.real()*sin(s)/s;
-      ck.imag() = ck.imag()*sin(s)/s;
+      ck.real(ck.real()*sin(s)/s);
+      ck.imag(ck.imag()*sin(s)/s);
     };
-    ck.real() = ck.real()*fik*fik/sin(fik);
-    ck.imag() = ck.imag()*fik*fik/sin(fik);
+    ck.real(ck.real()*fik*fik/sin(fik));
+    ck.imag(ck.imag()*fik*fik/sin(fik));
     s = TPI*(posy[k]*stsf+posz[k]*cth);
-    c.real() = c.real()+ck.real()*cos(s)-ck.imag()*sin(s);
-    c.imag() = c.imag()+ck.real()*sin(s)+ck.imag()*cos(s);
+    c.real(c.real()+ck.real()*cos(s)-ck.imag()*sin(s));
+    c.imag(c.imag()+ck.real()*sin(s)+ck.imag()*cos(s));
   };
   d = 60*(cth*cth*cfi*cfi+sfi*sfi)*(c.real()*c.real()+c.imag()*c.imag())/power;
   if (d<1E-20) {
