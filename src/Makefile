@@ -6,3 +6,5 @@ yagi-logper: yagi-logper.cc
 clean:
 	rm yagi-logper
 
+install:
+	cp yagi-logper ../../install/bin/nec2
